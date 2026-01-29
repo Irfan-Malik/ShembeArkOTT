@@ -1,296 +1,379 @@
 package com.main.taratv.screens
 
+import android.graphics.drawable.Icon
+import android.util.Log
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material3.*
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
+import androidx.compose.material3.TabRowDefaults
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import com.main.taratv.ui.theme.*
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.fontscaling.MathUtils.lerp
 import com.main.taratv.R
+import com.main.taratv.MovieCard
+import com.main.taratv.data.MockApi
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.main.taratv.viewmodel.MoviesViewModel
+import kotlinx.coroutines.flow.collect
 
 @Composable
-fun MoviesScreen(onMovieClick: (Movie) -> Unit = {}, onPlayClick: () -> Unit = {}) {
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(8.dp)
+fun MoviesScreen(
+    onMovieClick: (Movie) -> Unit = {},
+    onPlayClick: () -> Unit = {}
+) {
+    var selectedTab by rememberSaveable { mutableStateOf(0) }
+    val moviesViewModel: MoviesViewModel = viewModel()
+    val moviesState by moviesViewModel.movies.collectAsState()
+
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .background(Color.Black)
     ) {
-        item {
-            MovieSearchBar()
+        MoviesTabRow(selectedTab = selectedTab, onTabSelected = { selectedTab = it })
+
+        if(selectedTab == 0){
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(
+                text = "Popular Movies",
+                color = Color.White,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .padding(start = 8.dp, bottom = 8.dp)
+            )
+
+
+            LazyRow(
+                contentPadding = PaddingValues(horizontal = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(moviesState) { movie ->
+                    MovieCard(
+                        movie = movie,
+                        onMovieClick = onMovieClick,
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                text = "Recommended For You",
+                color = Color.White,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .padding(start = 8.dp, bottom = 8.dp)
+            )
+
+
+            LazyRow(
+                contentPadding = PaddingValues(horizontal = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(getScienceFictionMovies()) { movie ->
+                    MovieCard(
+                        movie = movie,
+                        onMovieClick = onMovieClick,
+                    )
+                }
+            }
+
+        } else {
+            TrendingNowSection(
+                items = trendingItems,
+                onItemClick = { series -> /* navigate to detail */ }
+            )
         }
-        
-        item {
-            FeaturedMovieSection(onMovieClick = onMovieClick, onPlayClick = onPlayClick)
-        }
-        
-        item {
-            CategorySection(title = "Action Movies", movies = getActionMovies(), onMovieClick = onMovieClick, onPlayClick = onPlayClick)
-        }
-        
-        item {
-            CategorySection(title = "Love & Romance", movies = getLoveMovies(), onMovieClick = onMovieClick, onPlayClick = onPlayClick)
-        }
-        
-        item {
-            CategorySection(title = "Science Fiction", movies = getScienceFictionMovies(), onMovieClick = onMovieClick, onPlayClick = onPlayClick)
-        }
+
     }
 }
 
 @Composable
-fun MovieSearchBar() {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(AppLightGray, RoundedCornerShape(8.dp))
-            .padding(8.dp)
-            .clickable { /* Handle search click */ }
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = Icons.Default.Search,
-                contentDescription = "Search",
-                tint = Color.Gray,
-                modifier = Modifier.size(20.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = "Search movies and TV series...",
-                color = Color.Gray,
-                fontSize = 16.sp
-            )
-            Spacer(modifier = Modifier.width(20.dp))
-        }
-    }
-}
+fun MoviesTabRow(selectedTab: Int, onTabSelected:  (Int) -> Unit) {
+    val tabs = listOf(R.drawable.tabimage, R.drawable.movies_series_active)
 
-@Composable
-fun FeaturedMovieSection(onMovieClick: (Movie) -> Unit = {}, onPlayClick: () -> Unit = {}) {
-    val featuredMovie = Movie("Underworld: Blood Wars", 2016, "Action", "1h 31m", R.drawable.underworld_blood_wars,R.drawable.underworld_blood_wars_poster, true)
-    Spacer(modifier = Modifier.height(16.dp))
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(200.dp)
-            .background(AppDarkGray, RoundedCornerShape(12.dp))
-            .padding(8.dp)
-            .clickable { onMovieClick(featuredMovie) }
+    TabRow(
+        selectedTabIndex = selectedTab,
+        containerColor = Color.Transparent,
+        contentColor = Color.White,
+        indicator = { tabPositions ->
+            TabRowDefaults.Indicator(
+                Modifier.tabIndicatorOffset(tabPositions[selectedTab]),
+                color = Color(0xFF00BFFF)
+            )
+        }
     ) {
-        Image(
-            painter = painterResource(id = R.drawable.underworld_blood_wars),
-            contentDescription = "Background",
-            modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Crop
-        )
-        Column(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            Text(
-                text = "Featured",
-                color = Color.White,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            )
-            
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            Text(
-                text = "Underworld: Blood Wars",
-                color = Color.White,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
-            )
-            
-            Text(
-                text = "Action • 2016 • 1h 31m",
-                color = Color.White.copy(alpha = 0.8f),
-                fontSize = 14.sp
-            )
-            
-            Spacer(modifier = Modifier.weight(1f))
-            
-            Row(
-                verticalAlignment = Alignment.CenterVertically
+        tabs.forEachIndexed { index, resId ->
+            Tab(
+                selected = selectedTab == index,
+                onClick = { onTabSelected(index) },
+                modifier = Modifier.height(64.dp)
             ) {
                 Box(
                     modifier = Modifier
-                        .size(48.dp)
-                        .background(AppRed, CircleShape)
-                        .clickable { onPlayClick() },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.PlayArrow,
-                        contentDescription = "Play",
-                        tint = Color.White,
-                        modifier = Modifier.size(24.dp)
-                    )
-                }
-                
-                Spacer(modifier = Modifier.width(12.dp))
-                
-                Text(
-                    text = "Watch Now",
-                    color = Color.White,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun CategorySection(title: String, movies: List<Movie>, onMovieClick: (Movie) -> Unit = {}, onPlayClick: () -> Unit = {}) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 16.dp)
-    ) {
-        Text(
-            text = title,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.White,
-            modifier = Modifier.padding(bottom = 12.dp)
-        )
-        
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            items(movies) { movie ->
-                MovieCard(movie = movie, onMovieClick = onMovieClick, onPlayClick = onPlayClick)
-            }
-        }
-    }
-}
-
-@Composable
-fun MovieCard(movie: Movie, onMovieClick: (Movie) -> Unit = {}, onPlayClick: () -> Unit = {}) {
-    Box(
-        modifier = Modifier
-            .width(120.dp)
-            .clickable { onMovieClick(movie) }
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(160.dp)
-                .background(AppDarkGray, RoundedCornerShape(8.dp))
-        ) {
-            Image(
-                painter = painterResource(id = movie.imageResource),
-                contentDescription = movie.title,
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop
-            )
-            // Premium indicator
-            if (movie.isPremium) {
-                Box(
-                    modifier = Modifier
-                        .size(24.dp)
-                        .background(AppRed, CircleShape)
-                        .align(Alignment.TopEnd)
-                        .padding(4.dp),
+                        .fillMaxHeight()
+                        .padding(vertical = 8.dp)
+                        .width(120.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "$",
-                        color = Color.White,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold
+                        text = if(index == 0) "Movies" else "Series",
+                        color = if (selectedTab == index) Color(0xFF00BFFF) else Color.Gray,
+                        fontWeight = if (selectedTab == index) FontWeight.Bold else FontWeight.Normal,
+                        modifier = Modifier
+                            .clickable { onTabSelected(index) }
                     )
                 }
             }
-            
-            // Play button overlay
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .background(AppRed, CircleShape)
-                    .align(Alignment.Center)
-                    .clickable { onPlayClick() },
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Default.PlayArrow,
-                    contentDescription = "Play",
-                    tint = Color.White,
-                    modifier = Modifier.size(20.dp)
-                )
-            }
-            
-            Text(
-                text = movie.title,
-                color = Color.White,
-                fontSize = 12.sp,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(8.dp)
-            )
         }
-//        Text(
-//            text = movie.title,
-//            fontSize = 12.sp,
-//            modifier = Modifier.padding(top = 4.dp)
-//        )
     }
 }
 
-data class Movie(
-    val title: String,
-    val year: Int,
-    val genre: String,
-    val duration: String,
-    val imageResource: Int,
-    val imagePosterResource: Int,
-    val isPremium: Boolean = false
+@Preview(showBackground = true)
+@Composable
+fun MoviesScreenPreview() {
+    MoviesScreen()
+}
+@Composable
+fun TrendingNowSection(
+    items: List<SeriesItem>,
+    onItemClick: (SeriesItem) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 12.dp)
+    ) {
+        // Title + "Trending Now"
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column {
+                Text(
+                    text = "Trending Now",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+
+                // Optional smaller subtitle / category
+                Text(
+                    text = "New Series • Drama • Recommended",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 2.dp)
+                )
+            }
+
+            // Optional "See All" button
+            TextButton(onClick = { /* navigate to full list */ }) {
+                Text("See All")
+                Icon(
+                    imageVector = Icons.AutoMirrored.Default.ArrowForward,
+                    contentDescription = null,
+                    modifier = Modifier.padding(start = 4.dp)
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // ------------------ Horizontal carousel ------------------
+        LazyRow(
+            contentPadding = PaddingValues(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            items(items, key = { it.id }) { item ->
+                SeriesPosterCard(
+                    item = item,
+                    onClick = { onItemClick(item) }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun SeriesPosterCard(
+    item: SeriesItem,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .width(140.dp)               // typical poster width
+            .aspectRatio(2f / 3f)        // classic vertical poster ratio
+            .clip(RoundedCornerShape(8.dp))
+            .clickable(onClick = onClick)
+    ) {
+        // Poster image (use Coil / Glide / AsyncImage)
+        AsyncImage(
+            model = item.imageUrl,
+            contentDescription = item.title,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
+        )
+
+        // Gradient overlay at bottom (for text readability)
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        0.6f to Color.Transparent,
+                        1f to Color.Black.copy(alpha = 0.75f)
+                    )
+                )
+        )
+
+        // Bottom labels / tags
+        Column(
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .padding(10.dp)
+        ) {
+            item.subtitle?.let {
+                Text(
+                    text = it,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = Color.White,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+
+            Spacer(modifier = Modifier.height(2.dp))
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                item.label?.let { label ->
+                    Text(
+                        text = label,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color.White,
+                        modifier = Modifier
+                            .background(
+                                Color.Black.copy(alpha = 0.6f),
+                                RoundedCornerShape(4.dp)
+                            )
+                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                    )
+                }
+
+                // Optional badge like "New" / "01"
+                if (item.title.contains("01")) {
+                    Text(
+                        text = "New",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color.White,
+                        modifier = Modifier
+                            .background(Color.Red.copy(alpha = 0.9f), CircleShape)
+                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun AsyncImage(
+    model: String,
+    contentDescription: String,
+    modifier: Modifier,
+    contentScale: ContentScale,
+
+) {
+    if(model.isNullOrEmpty()){
+        Image(
+            painter = painterResource(id = R.drawable.bridges_21),
+            contentDescription = contentDescription,
+            modifier = modifier,
+            contentScale = contentScale
+        )
+    } else {
+        // Here you would typically use an image loading library like Coil or Glide
+        // For this example, we'll just use a placeholder
+        Image(
+            painter = painterResource(id = R.drawable.bridges_21),
+            contentDescription = contentDescription,
+            modifier = modifier,
+            contentScale = contentScale
+        )
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun TrendingNowPagerSection(items: List<SeriesItem>) {
+    Column {
+        // same title as above...
+
+        val pagerState = rememberPagerState(pageCount = { items.size })
+
+        HorizontalPager(
+            state = pagerState,
+            contentPadding = PaddingValues(horizontal = 48.dp),   // → peek next/prev
+            pageSpacing = 12.dp
+        ) { index ->
+            val item = items[index]
+//            SeriesPosterCard(
+//                item = item,
+//                onClick = { onItemClick(item) }
+//            )
+        }
+    }
+}
+val trendingItems = listOf(
+    SeriesItem(1, "New Headway 01", "Short Soulfull Drama Serial", "https://...", "English Subtitle"),
+    SeriesItem(2, "For Young Lee", "New Drama Series", "https://...", "For Young"),
+    // ...
 )
 
-fun getActionMovies(): List<Movie> {
-    return listOf(
-        Movie("21 Bridges", 2019, "Action", "1h 39m", R.drawable.bridges_21,R.drawable.bridges_21_poster),
-        Movie("Mission Impossible: Fallout", 2018, "Action", "2h 27m", R.drawable.mission_impossible_fallout,R.drawable.mission_impossible_fallout_poster),
-        Movie("Braven", 2018, "Action", "1h 34m", R.drawable.braven,R.drawable.braven_poster),
-        Movie("Underworld: Blood Wars", 2016, "Action", "1h 31m", R.drawable.underworld_blood_wars,R.drawable.underworld_blood_wars_poster, true)
-    )
-}
 
-fun getLoveMovies(): List<Movie> {
-    return listOf(
-        Movie("Frozen II", 2019, "Animation", "1h 43m", R.drawable.frozen_ii ,R.drawable.frozen_poster),
-        Movie("Maleficent", 2014, "Fantasy", "1h 37m", R.drawable.maleficent,R.drawable.maleficent_poster),
-        Movie("Aladdin", 2019, "Adventure", "2h 8m", R.drawable.aladdin,R.drawable.aladdin_poster),
-        Movie("Aquaman", 2018, "Action", "2h 23m", R.drawable.aquaman,R.drawable.aquaman_poster, true)
-    )
-}
 
-fun getScienceFictionMovies(): List<Movie> {
-    return listOf(
-        Movie("Alita: Battle Angel", 2019, "Sci-Fi", "2h 2m", R.drawable.alita_battle_angel,R.drawable.alita_battle_angel_poster),
-        Movie("Black Widow", 2021, "Action", "2h 14m", R.drawable.black_widow_poster,R.drawable.black_widow_preview),
-        Movie("Focus", 2015, "Crime", "1h 45m", R.drawable.focus,R.drawable.focus_poster),
-        Movie("Braven", 2018, "Action", "1h 34m", R.drawable.braven,R.drawable.braven_poster, true)
-    )
-} 
+data class SeriesItem(
+    val id: Int,
+    val title: String,           // e.g. "New Headway 01"
+    val subtitle: String?,       // e.g. "Short Soulfull Drama Serial"
+    val imageUrl: String,        // poster URL
+    val label: String? = null    // e.g. "For Young", "English Subtitle"
+)

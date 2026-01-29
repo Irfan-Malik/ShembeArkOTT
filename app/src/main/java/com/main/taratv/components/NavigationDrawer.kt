@@ -2,6 +2,7 @@ package com.main.taratv.components
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -16,9 +17,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.main.taratv.R
 
 @Composable
 fun NavigationDrawer(
@@ -54,11 +59,6 @@ fun NavigationDrawer(
                             onClick = { onNavigationItemClick(item) }
                         )
                     }
-                    
-                    item {
-                        Spacer(modifier = Modifier.height(16.dp))
-                        ProfileSection()
-                    }
                 }
             }
         }
@@ -73,33 +73,12 @@ fun UserProfileSection() {
         // Profile picture placeholder
         Box(
             modifier = Modifier
-                .size(80.dp)
-                .clip(CircleShape)
-                .background(Color(0xFF424242)),
-            contentAlignment = Alignment.Center
+                .fillMaxWidth()
+                .padding(16.dp)
+
         ) {
-            Icon(
-                imageVector = Icons.Default.Person,
-                contentDescription = "Profile",
-                tint = Color.White,
-                modifier = Modifier.size(40.dp)
-            )
+            Image(painter = painterResource(id = R.drawable.app_logo),contentDescription = null, modifier = Modifier.height(30.dp).width(170.dp))
         }
-        
-        Spacer(modifier = Modifier.height(12.dp))
-        
-        Text(
-            text = "Nicole Elison",
-            color = Color.White,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold
-        )
-        
-        Text(
-            text = "Maidenhead, United Kingdom",
-            color = Color.White.copy(alpha = 0.7f),
-            fontSize = 14.sp
-        )
     }
 }
 
@@ -124,13 +103,22 @@ fun NavigationDrawerItem(
                     .padding(vertical = 12.dp, horizontal = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-            Icon(
-                imageVector = item.icon,
-                contentDescription = item.title,
-                tint = if (item.isSelected) Color(0xFF00BFFF) else Color.White,
-                modifier = Modifier.size(24.dp)
-            )
-            
+            if (item.iconRes != null) {
+                Icon(
+                    painter = painterResource(id = item.iconRes),
+                    contentDescription = item.title,
+                    tint = if (item.isSelected) Color(0xFF00BFFF) else Color.White,
+                    modifier = Modifier.size(24.dp)
+                )
+            } else if (item.icon != null) {
+                Icon(
+                    imageVector = item.icon,
+                    contentDescription = item.title,
+                    tint = if (item.isSelected) Color(0xFF00BFFF) else Color.White,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+
             Spacer(modifier = Modifier.width(16.dp))
             
             Text(
@@ -170,13 +158,22 @@ fun NavigationDrawerItem(
                         .padding(start = 40.dp, top = 8.dp, bottom = 8.dp, end = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        imageVector = subItem.icon,
-                        contentDescription = subItem.title,
-                        tint = Color.White.copy(alpha = 0.7f),
-                        modifier = Modifier.size(20.dp)
-                    )
-                    
+                    if (subItem.iconRes != null) {
+                        Icon(
+                            painter = painterResource(id = subItem.iconRes),
+                            contentDescription = subItem.title,
+                            tint = Color.White.copy(alpha = 0.7f),
+                            modifier = Modifier.size(20.dp)
+                        )
+                    } else {
+                        Icon(
+                            imageVector = subItem.icon!!,
+                            contentDescription = subItem.title,
+                            tint = Color.White.copy(alpha = 0.7f),
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+
                     Spacer(modifier = Modifier.width(12.dp))
                     
                     Text(
@@ -186,51 +183,16 @@ fun NavigationDrawerItem(
                     )
                 }
             }
+
         }
     }
 }
 
-@Composable
-fun ProfileSection() {
-    Column {
-        Text(
-            text = "My Profile",
-            color = Color.White,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(vertical = 8.dp)
-        )
-        
-        getProfileItems().forEach { item ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { /* Handle profile item click */ }
-                    .padding(vertical = 8.dp, horizontal = 8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = item.icon,
-                    contentDescription = item.title,
-                    tint = Color.White.copy(alpha = 0.7f),
-                    modifier = Modifier.size(20.dp)
-                )
-                
-                Spacer(modifier = Modifier.width(12.dp))
-                
-                Text(
-                    text = item.title,
-                    color = Color.White.copy(alpha = 0.7f),
-                    fontSize = 14.sp
-                )
-            }
-        }
-    }
-}
 
 data class NavigationItem(
     val title: String,
-    val icon: androidx.compose.ui.graphics.vector.ImageVector,
+    val icon: ImageVector? = null,
+    val iconRes: Int? = null,
     val isSelected: Boolean = false,
     val hasSubItems: Boolean = false,
     val subItems: List<SubItem>? = null
@@ -238,26 +200,24 @@ data class NavigationItem(
 
 data class SubItem(
     val title: String,
-    val icon: androidx.compose.ui.graphics.vector.ImageVector
+    val icon: ImageVector? = null,
+    val iconRes: Int? = null
 )
 
 fun getNavigationItems(): List<NavigationItem> {
     return listOf(
-        NavigationItem("Home", Icons.Default.Home, isSelected = true),
-        NavigationItem("Channels", Icons.Default.PlayArrow),
-        NavigationItem("Programs", Icons.Default.List),
-        NavigationItem("Radio", Icons.Default.PlayArrow),
-        NavigationItem("Movies", Icons.Default.PlayArrow),
-        NavigationItem("TV Series", Icons.Default.PlayArrow)
+        NavigationItem("Home", iconRes = R.drawable.home, isSelected = true),
+        NavigationItem("Channels", iconRes = R.drawable.channels),
+        NavigationItem("Programs", iconRes = R.drawable.programs),
+        NavigationItem("Radio", iconRes = R.drawable.radio),
+        NavigationItem("Movies", iconRes = R.drawable.movies),
+        NavigationItem("TV Series", iconRes = R.drawable.tv_shows),
+        NavigationItem("My Profile", iconRes = R.drawable.profile),
+        NavigationItem("About", iconRes = R.drawable.about),
+        NavigationItem("Feedback", iconRes = R.drawable.fed),
+        NavigationItem("Settings", iconRes = R.drawable.settings),
+        NavigationItem("Terms & Conditions", iconRes = R.drawable.terms),
+        NavigationItem("Help", iconRes = R.drawable.help),
     )
 }
 
-fun getProfileItems(): List<SubItem> {
-    return listOf(
-        SubItem("Packages", Icons.Default.List),
-        SubItem("Settings", Icons.Default.Settings),
-        SubItem("About", Icons.Default.Info),
-        SubItem("Feedback", Icons.Default.Star),
-        SubItem("Terms & Conditions", Icons.Default.List)
-    )
-} 

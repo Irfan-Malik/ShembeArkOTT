@@ -34,13 +34,13 @@ fun RadioScreen(onPlayClick: () -> Unit = {}) {
                 .fillMaxSize()
                 .padding(8.dp)
         ) {
-        item {
-            RadioSearchBar()
-        }
+//        item {
+//            RadioSearchBar()
+//        }
         
-        item {
-            NowPlayingSection(onPlayClick = onPlayClick)
-        }
+//        item {
+//            NowPlayingSection(onPlayClick = onPlayClick)
+//        }
         
         item {
             CategorySection(title = "Popular Stations", stations = getPopularStations(), onPlayClick = onPlayClick)
@@ -196,7 +196,7 @@ fun RadioStationCard(station: RadioStation, onPlayClick: () -> Unit = {}) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(80.dp)
+                .height(100.dp)
                 .background(AppDarkGray, RoundedCornerShape(8.dp))
         ) {
             // Get the radio station image resource ID based on station name
@@ -209,21 +209,21 @@ fun RadioStationCard(station: RadioStation, onPlayClick: () -> Unit = {}) {
             )
             
             // Play button overlay
-            Box(
-                modifier = Modifier
-                    .size(32.dp)
-                    .background(AppRed, CircleShape)
-                    .align(Alignment.Center)
-                    .clickable { onPlayClick() },
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Default.PlayArrow,
-                    contentDescription = "Play",
-                    tint = Color.White,
-                    modifier = Modifier.size(16.dp)
-                )
-            }
+//            Box(
+//                modifier = Modifier
+//                    .size(32.dp)
+//                    .background(AppRed, CircleShape)
+//                    .align(Alignment.Center)
+//                    .clickable { onPlayClick() },
+//                contentAlignment = Alignment.Center
+//            ) {
+//                Icon(
+//                    imageVector = Icons.Default.PlayArrow,
+//                    contentDescription = "Play",
+//                    tint = Color.White,
+//                    modifier = Modifier.size(16.dp)
+//                )
+//            }
         }
         Text(
             text = station.name,

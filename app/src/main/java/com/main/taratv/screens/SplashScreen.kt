@@ -1,6 +1,7 @@
 package com.main.taratv.screens
 
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -33,84 +34,82 @@ fun SplashScreen(onSplashComplete: () -> Unit) {
 
     Box(
         modifier = Modifier
-            .fillMaxSize()
-            .background(
-                brush = androidx.compose.ui.graphics.Brush.verticalGradient(
-                    colors = listOf(
-                        Color(0xFF1E3A8A),
-                        Color(0xFF3B82F6)
-                    )
-                )
-            ),
+            .fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
         // Main logo container with semi-transparent background
-        Box(
-            modifier = Modifier
-                .background(Color.Black.copy(alpha = 0.8f), RoundedCornerShape(16.dp))
-                .padding(14.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                // TARA Logo
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    // Letter T - Vibrant purple/magenta
-                    Text(
-                        text = "T",
-                        fontSize = 36.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF8B008B)
-                    )
-
-                    // Letter A - Bright orange
-                    Text(
-                        text = "A",
-                        fontSize = 36.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFFFF8C00)
-                    )
-
-                    // Letter R - Pinkish-red
-                    Text(
-                        text = "R",
-                        fontSize = 36.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFFFF69B4)
-                    )
-
-                    // Letter A - Light blue/cyan
-                    Text(
-                        text = "A",
-                        fontSize = 36.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF00BFFF)
-                    )
-
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    // Circular play button icon
-                    Box(
-                        modifier = Modifier
-                            .size(32.dp)
-                            .clip(CircleShape)
-                            .background(Color(0xFF32CD32)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "▶",
-                            color = Color.White,
-                            fontSize = 16.sp
-                        )
-                    }
-                }
-            }
-        }
+        Image(
+            painter = androidx.compose.ui.res.painterResource(id = com.main.taratv.R.drawable.splash),
+            contentDescription = "Splash Background",
+            modifier = Modifier.fillMaxSize(),
+            contentScale = androidx.compose.ui.layout.ContentScale.Crop
+        )
+//        Box(
+//            modifier = Modifier
+//                .background(Color.Black.copy(alpha = 0.8f), RoundedCornerShape(16.dp))
+//                .padding(14.dp),
+//            contentAlignment = Alignment.Center
+//        ) {
+//            Column(
+//                horizontalAlignment = Alignment.CenterHorizontally,
+//                verticalArrangement = Arrangement.Center
+//            ) {
+//                // TARA Logo
+//                Row(
+//                    verticalAlignment = Alignment.CenterVertically,
+//                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+//                ) {
+//                    // Letter T - Vibrant purple/magenta
+//                    Text(
+//                        text = "T",
+//                        fontSize = 36.sp,
+//                        fontWeight = FontWeight.Bold,
+//                        color = Color(0xFF8B008B)
+//                    )
+//
+//                    // Letter A - Bright orange
+//                    Text(
+//                        text = "A",
+//                        fontSize = 36.sp,
+//                        fontWeight = FontWeight.Bold,
+//                        color = Color(0xFFFF8C00)
+//                    )
+//
+//                    // Letter R - Pinkish-red
+//                    Text(
+//                        text = "R",
+//                        fontSize = 36.sp,
+//                        fontWeight = FontWeight.Bold,
+//                        color = Color(0xFFFF69B4)
+//                    )
+//
+//                    // Letter A - Light blue/cyan
+//                    Text(
+//                        text = "A",
+//                        fontSize = 36.sp,
+//                        fontWeight = FontWeight.Bold,
+//                        color = Color(0xFF00BFFF)
+//                    )
+//
+//                    Spacer(modifier = Modifier.width(8.dp))
+//
+//                    // Circular play button icon
+//                    Box(
+//                        modifier = Modifier
+//                            .size(32.dp)
+//                            .clip(CircleShape)
+//                            .background(Color(0xFF32CD32)),
+//                        contentAlignment = Alignment.Center
+//                    ) {
+//                        Text(
+//                            text = "▶",
+//                            color = Color.White,
+//                            fontSize = 16.sp
+//                        )
+//                    }
+//                }
+//            }
+//        }
     }
 }
 
@@ -225,75 +224,81 @@ fun SplashScreenSimple(onSplashComplete: () -> Unit) {
             ),
         contentAlignment = Alignment.Center
     ) {
+        Image(
+            painter = androidx.compose.ui.res.painterResource(id = com.main.taratv.R.drawable.splash_img),
+            contentDescription = "Splash Background",
+            modifier = Modifier.fillMaxSize(),
+            contentScale = androidx.compose.ui.layout.ContentScale.Crop
+        )
         // Simple TARA logo
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            // TARA Logo
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                // Letter T - Vibrant purple/magenta
-                Text(
-                    text = "T",
-                    fontSize = 48.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF8B008B)
-                )
-
-                // Letter A - Bright orange
-                Text(
-                    text = "A",
-                    fontSize = 48.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFFFF8C00)
-                )
-
-                // Letter R - Pinkish-red
-                Text(
-                    text = "R",
-                    fontSize = 48.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFFFF69B4)
-                )
-
-                // Letter A - Light blue/cyan
-                Text(
-                    text = "A",
-                    fontSize = 48.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF00BFFF)
-                )
-
-                Spacer(modifier = Modifier.width(12.dp))
-
-                // Circular play button icon
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clip(CircleShape)
-                        .background(Color(0xFF32CD32)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "▶",
-                        color = Color.White,
-                        fontSize = 20.sp
-                    )
-                }
-            }
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            Text(
-                text = "TV & Radio App",
-                color = Color.White,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Medium
-            )
-        }
+//        Column(
+//            horizontalAlignment = Alignment.CenterHorizontally,
+//            verticalArrangement = Arrangement.Center
+//        ) {
+//            // TARA Logo
+//            Row(
+//                verticalAlignment = Alignment.CenterVertically,
+//                horizontalArrangement = Arrangement.spacedBy(4.dp)
+//            ) {
+//                // Letter T - Vibrant purple/magenta
+//                Text(
+//                    text = "T",
+//                    fontSize = 48.sp,
+//                    fontWeight = FontWeight.Bold,
+//                    color = Color(0xFF8B008B)
+//                )
+//
+//                // Letter A - Bright orange
+//                Text(
+//                    text = "A",
+//                    fontSize = 48.sp,
+//                    fontWeight = FontWeight.Bold,
+//                    color = Color(0xFFFF8C00)
+//                )
+//
+//                // Letter R - Pinkish-red
+//                Text(
+//                    text = "R",
+//                    fontSize = 48.sp,
+//                    fontWeight = FontWeight.Bold,
+//                    color = Color(0xFFFF69B4)
+//                )
+//
+//                // Letter A - Light blue/cyan
+//                Text(
+//                    text = "A",
+//                    fontSize = 48.sp,
+//                    fontWeight = FontWeight.Bold,
+//                    color = Color(0xFF00BFFF)
+//                )
+//
+//                Spacer(modifier = Modifier.width(12.dp))
+//
+//                // Circular play button icon
+//                Box(
+//                    modifier = Modifier
+//                        .size(40.dp)
+//                        .clip(CircleShape)
+//                        .background(Color(0xFF32CD32)),
+//                    contentAlignment = Alignment.Center
+//                ) {
+//                    Text(
+//                        text = "▶",
+//                        color = Color.White,
+//                        fontSize = 20.sp
+//                    )
+//                }
+//            }
+//
+//            Spacer(modifier = Modifier.height(16.dp))
+//
+//            Text(
+//                text = "TV & Radio App",
+//                color = Color.White,
+//                fontSize = 16.sp,
+//                fontWeight = FontWeight.Medium
+//            )
+//        }
     }
 }
 

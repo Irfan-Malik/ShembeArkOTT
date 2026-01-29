@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import com.main.taratv.ui.theme.*
 import androidx.compose.ui.text.font.FontWeight
@@ -25,32 +26,29 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.main.taratv.R
+import com.main.taratv.viewmodel.TvViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun TvScreen(onPlayClick: () -> Unit = {}) {
-            LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(8.dp)
-        ) {
+    val tvViewModel: TvViewModel = viewModel()
+    val channelsState by tvViewModel.channels.collectAsState()
+
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(8.dp)
+    ) {
         item {
             TvSearchBar()
         }
-        
-        item {
-            CategorySection(title = "News Channels", channels = getNewsChannels(), onPlayClick = onPlayClick)
-        }
-        
-        item {
-            CategorySection(title = "Entertainment", channels = getEntertainmentChannels(), onPlayClick = onPlayClick)
-        }
-        
-        item {
-            CategorySection(title = "Sports", channels = getSportsChannels(), onPlayClick = onPlayClick)
-        }
-        
-        item {
-            CategorySection(title = "Kids", channels = getKidsChannels(), onPlayClick = onPlayClick)
+
+        // Group channels by category and display
+        val grouped = channelsState.groupBy { it.category.ifBlank { "Misc" } }
+        grouped.forEach { (category, list) ->
+            item {
+                CategorySection(title = category, channels = list, onPlayClick = onPlayClick)
+            }
         }
     }
 }
@@ -97,7 +95,7 @@ fun CategorySection(title: String, channels: List<TvChannel>, onPlayClick: () ->
             color = Color.White,
             modifier = Modifier.padding(bottom = 12.dp)
         )
-        
+
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
@@ -129,7 +127,7 @@ fun TvChannelCard(channel: TvChannel, onPlayClick: () -> Unit = {}) {
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Fit
             )
-            
+
             // Play button overlay
             Box(
                 modifier = Modifier
@@ -147,11 +145,17 @@ fun TvChannelCard(channel: TvChannel, onPlayClick: () -> Unit = {}) {
                 )
             }
         }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
         Text(
-            text = "${channel.number} ${channel.name}",
-            fontSize = 12.sp,
+            text = channel.name,
             color = Color.White,
-            modifier = Modifier.padding(top = 4.dp)
+            fontSize = 12.sp,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .padding(horizontal = 4.dp)
         )
     }
 }
@@ -228,4 +232,4 @@ fun getKidsChannels(): List<TvChannel> {
         TvChannel("Disney Junior", 32, "Kids"),
         TvChannel("Disney", 33, "Kids")
     )
-} 
+}

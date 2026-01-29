@@ -1,14 +1,18 @@
 package com.main.taratv
 
 import android.os.Bundle
+import android.widget.Space
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.core.EaseInOutCubic
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -19,14 +23,14 @@ import kotlinx.coroutines.delay
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.filled.ArrowBack
 
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import com.main.taratv.ui.theme.*
 import androidx.compose.ui.layout.ContentScale
@@ -39,8 +43,6 @@ import androidx.compose.ui.unit.sp
 import com.main.taratv.ui.theme.TaraTVTheme
 import com.main.taratv.screens.*
 import com.main.taratv.components.NavigationDrawer
-import com.main.taratv.components.NavigationItem
-import com.main.taratv.screens.Movie
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,6 +56,9 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+// -----------------
+// App entry + state
+// -----------------
 @Composable
 fun TaraTvApp() {
     var showSplash by remember { mutableStateOf(true) }
@@ -62,7 +67,7 @@ fun TaraTvApp() {
     var showDetailScreen by remember { mutableStateOf(false) }
     var showVideoPlayer by remember { mutableStateOf(false) }
     var selectedMovie by remember { mutableStateOf<Movie?>(null) }
-    
+
     // Handle system back button
     BackHandler(enabled = showDetailScreen || showVideoPlayer) {
         when {
@@ -70,7 +75,7 @@ fun TaraTvApp() {
             showDetailScreen -> showDetailScreen = false
         }
     }
-    
+
     if (showSplash) {
         SplashScreenSimple(onSplashComplete = { showSplash = false })
     } else if (showVideoPlayer) {
@@ -96,60 +101,56 @@ fun TaraTvApp() {
                 .fillMaxSize()
                 .background(AppBlack)
         ) {
-            Column(modifier = Modifier.fillMaxSize()) {
-                // Top Header
-
-                TopHeader(
-                    onMenuClick = { isDrawerOpen = true },
-                    onBackClick = {
-                        when {
-                            showVideoPlayer -> showVideoPlayer = false
-                            showDetailScreen -> showDetailScreen = false
-                            else -> { /* Handle back navigation */ }
-                        }
-                    },
-                    showBackButton = showVideoPlayer || showDetailScreen
-                )
-
-                // Top Navigation Tabs
-                TopNavigation(selectedTab = selectedTab, onTabSelected = { selectedTab = it })
-                
-                // Spacer to ensure separation
-//                Spacer(modifier = Modifier.height(8.dp))
-                
-                // Main Content with proper spacing
+            Scaffold(
+                topBar = {
+                    TopHeader(
+                        selectedTab = selectedTab,
+                        onMenuClick = { isDrawerOpen = true },
+                        onBackClick = {
+                            when {
+                                showVideoPlayer -> showVideoPlayer = false
+                                showDetailScreen -> showDetailScreen = false
+                                else -> { /* Handle back navigation */ }
+                            }
+                        },
+                        showBackButton = showVideoPlayer || showDetailScreen
+                    )
+                },
+                bottomBar = {
+                    TopNavigation(selectedTab = selectedTab, onTabSelected = { selectedTab = it })
+                },
+                modifier = Modifier.fillMaxSize(),
+                containerColor = AppBlack
+            ) { innerPadding ->
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .weight(1f)
-                        .padding(start = 8.dp, top = 5.dp, end = 8.dp, bottom = 25.dp)
+                        .padding(innerPadding)
+                        .padding(start = 8.dp, top = 5.dp, end = 8.dp, bottom = 4.dp)
                 ) {
                     when (selectedTab) {
                         0 -> HomeScreen(
-                            onItemClick = { showDetailScreen = true },
-                            onVideoPlayerClick = { showVideoPlayer = true },
-                            onMovieClick = { movie ->
+                             onItemClick = { showDetailScreen = true },
+                             onVideoPlayerClick = { showVideoPlayer = true },
+                            onMovieClick = { movie: Movie ->
                                 selectedMovie = movie
-                                showDetailScreen = true
-                            }
+                                 showDetailScreen = true
+                             }
                         )
                         1 -> TvScreen(onPlayClick = { showVideoPlayer = true })
-                        2 -> RadioScreen(onPlayClick = { showVideoPlayer = true })
-                        3 -> MoviesScreen(
-                            onMovieClick = { movie ->
+                        2 -> MoviesScreen(
+                            onMovieClick = { movie: Movie ->
                                 selectedMovie = movie
                                 showDetailScreen = true
                             },
                             onPlayClick = { showVideoPlayer = true }
                         )
+                        3 ->  RadioScreen(onPlayClick = { showVideoPlayer = true })
                         4 -> ProfileScreen()
                     }
                 }
-                
-                // Bottom spacer to ensure separation from bottom navigation
-                Spacer(modifier = Modifier.height(55.dp))
             }
-            
+
             // Navigation Drawer
             NavigationDrawer(
                 isOpen = isDrawerOpen,
@@ -170,23 +171,27 @@ fun TaraTvApp() {
     }
 }
 
+// -----------------
+// Top App Bar
+// -----------------
 @Composable
-fun TopHeader(onMenuClick: () -> Unit, onBackClick: () -> Unit = {}, showBackButton: Boolean = false) {
+fun TopHeader(selectedTab : Int , onMenuClick: () -> Unit, onBackClick: () -> Unit = {}, showBackButton: Boolean = false) {
     Box(
         modifier = Modifier
+            .statusBarsPadding()
             .fillMaxWidth()
-            .background(AppRed)
+            .background(Color.Transparent)
             .padding(horizontal = 8.dp, vertical = 12.dp)
     ) {
         Spacer(modifier = Modifier.height(10.dp))
         Row(
             modifier = Modifier.fillMaxWidth().padding(0.dp, 16.dp, 0.dp, 0.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
+            /*horizontalArrangement = Arrangement.SpaceBetween,*/
             verticalAlignment = Alignment.CenterVertically
         ) {
             // Back button or Hamburger menu
             Icon(
-                imageVector = if (showBackButton) Icons.Default.ArrowBack else Icons.Default.Menu,
+                imageVector = if (showBackButton) Icons.AutoMirrored.Filled.ArrowBack else Icons.Default.Menu,
                 contentDescription = if (showBackButton) "Back" else "Menu",
                 tint = Color.White,
                 modifier = Modifier
@@ -195,67 +200,147 @@ fun TopHeader(onMenuClick: () -> Unit, onBackClick: () -> Unit = {}, showBackBut
                         if (showBackButton) onBackClick() else onMenuClick() 
                     }
             )
-            
-            // App logo and name
-            Text(
-                text = "Tara",
-                color = Color.White,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Medium
-            )
+            Spacer(modifier = Modifier.width(10.dp))
+            when (selectedTab) {
+                0 -> Image(
+                    painter = painterResource(id = R.drawable.app_logo),
+                    contentDescription = null,
+                    modifier = Modifier.height(24.dp)
+                )
+                1 -> Text(
+                    text = "Channels",
+                    color = Color.White,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Medium
+                )
+                2 -> Text(
+                    text = "Library",
+                    color = Color.White,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Medium
+                )
+                3 -> Text(
+                    text = "Radio",
+                    color = Color.White,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Medium
+                )
+                else -> Text(
+                    text = "More",
+                    color = Color.White,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Medium
+                )
+            }
+            Spacer(modifier = Modifier.weight(1f))
             
             // Search icon
-            Icon(
-                imageVector = Icons.Default.Search,
-                contentDescription = "Search",
-                tint = Color.White,
-                modifier = Modifier
-                    .size(24.dp)
-                    .clickable { /* Handle search click */ }
-            )
+            when (selectedTab) {
+                0 -> {
+                    BroadCasting()
+                    Spacer(modifier = Modifier.width(16.dp))
+                    SearchIcon()
+                }
+                1 ->{
+                    BroadCasting()
+                    Spacer(modifier = Modifier.width(16.dp))
+                    MenuIcon()
+                    Spacer(modifier = Modifier.width(16.dp))
+                    SearchIcon()
+                }
+
+                2 -> {
+                    BroadCasting()
+                    Spacer(modifier = Modifier.width(16.dp))
+                    SearchIcon()
+                }
+                3 -> {
+                    BroadCasting()
+                    Spacer(modifier = Modifier.width(16.dp))
+                    MenuIcon()
+                    Spacer(modifier = Modifier.width(16.dp))
+                    SearchIcon()
+
+                }
+                else -> {}
+            }
+
         }
     }
 }
 
 @Composable
+fun BroadCasting(){
+    Image(
+        painter = painterResource(id = R.drawable.screen_broadcast),
+        contentDescription = null,
+        modifier = Modifier.height(24.dp)
+    )
+}
+
+@Composable
+fun MenuIcon(){
+    Image(
+        painter = painterResource(id = R.drawable.menu),
+        contentDescription = null,
+        modifier = Modifier.height(24.dp)
+    )
+}
+
+@Composable
+fun SearchIcon(){
+    Icon(
+        imageVector = Icons.Default.Search,
+        contentDescription = "Search",
+        tint = Color.White,
+        modifier = Modifier
+            .size(24.dp)
+            .clickable { /* Handle search click */ }
+    )
+}
+
+// -----------------
+// Bottom Navigation
+// -----------------
+@Composable
 fun TopNavigation(selectedTab: Int, onTabSelected: (Int) -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(AppRed)
-            .padding(vertical = 8.dp)
+            .navigationBarsPadding()
+            .background(AppBlack)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             NavigationItem(
-                icon = Icons.Default.Home,
+                icon = if (selectedTab == 0) R.drawable.home else R.drawable.home_,
                 label = "Home",
                 isSelected = selectedTab == 0,
                 onClick = { onTabSelected(0) }
             )
-            NavigationItemWithDrawable(
-                icon = R.drawable.channels_active,
-                label = "TV",
+            NavigationItem(
+                icon = if (selectedTab == 1) R.drawable.channels else R.drawable.channels_,
+                label = "Channels",
                 isSelected = selectedTab == 1,
                 onClick = { onTabSelected(1) }
             )
-            NavigationItemWithDrawable(
-                icon = R.drawable.radio_white_home,
-                label = "Radio",
+            NavigationItem(
+                icon = if (selectedTab == 2) R.drawable.library else R.drawable.library_,
+                label = "Library",
                 isSelected = selectedTab == 2,
                 onClick = { onTabSelected(2) }
             )
-            NavigationItemWithDrawable(
-                icon = R.drawable.movies_series_active,
-                label = "Movies",
+            NavigationItem(
+                icon = if (selectedTab == 3) R.drawable.radio else R.drawable.radio_,
+                label = "Radio",
                 isSelected = selectedTab == 3,
                 onClick = { onTabSelected(3) }
             )
             NavigationItem(
-                icon = Icons.Default.Person,
-                label = "Profile",
+                icon = if (selectedTab == 4) R.drawable.more else R.drawable.more_,
+                label = "More",
                 isSelected = selectedTab == 4,
                 onClick = { onTabSelected(4) }
             )
@@ -263,59 +348,11 @@ fun TopNavigation(selectedTab: Int, onTabSelected: (Int) -> Unit) {
     }
 }
 
+// -----------------
+// Navigation Item composables
+// -----------------
 @Composable
 fun NavigationItem(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    label: String,
-    isSelected: Boolean,
-    onClick: () -> Unit
-) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.clickable { onClick() }
-    ) {
-        Box(
-            modifier = Modifier
-                .size(40.dp)
-                .background(
-                    if (isSelected) Color.White else Color.Transparent,
-                    CircleShape
-                ),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = label,
-                tint = if (isSelected) AppRed else Color.White,
-                modifier = Modifier.size(20.dp)
-            )
-        }
-        
-        Spacer(modifier = Modifier.height(4.dp))
-        
-        Text(
-            text = label,
-            color = Color.White,
-            fontSize = 10.sp,
-            textAlign = TextAlign.Center,
-            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
-        )
-        
-        // Selection indicator
-        if (isSelected) {
-            Spacer(modifier = Modifier.height(4.dp))
-            Box(
-                modifier = Modifier
-                    .width(20.dp)
-                    .height(2.dp)
-                    .background(Color.White, RoundedCornerShape(1.dp))
-            )
-        }
-    }
-}
-
-@Composable
-fun NavigationItemWithDrawable(
     icon: Int,
     label: String,
     isSelected: Boolean,
@@ -327,44 +364,31 @@ fun NavigationItemWithDrawable(
     ) {
         Box(
             modifier = Modifier
-                .size(40.dp)
-                .background(
-                    if (isSelected) Color.White else Color.Transparent,
-                    CircleShape
-                ),
+                .size(35.dp)
+                .background(Color.Transparent, CircleShape),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 painter = painterResource(id = icon),
                 contentDescription = label,
-                tint = if (isSelected) AppRed else Color.White,
-                modifier = Modifier.size(20.dp)
+                tint = if (isSelected) CustomBlue else Color.White,
+                modifier = Modifier.size(25.dp)
             )
         }
-        
-        Spacer(modifier = Modifier.height(4.dp))
-        
+
         Text(
             text = label,
-            color = Color.White,
+            color = if (isSelected) CustomBlue else Color.White,
             fontSize = 10.sp,
             textAlign = TextAlign.Center,
             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
         )
-        
-        // Selection indicator
-        if (isSelected) {
-            Spacer(modifier = Modifier.height(4.dp))
-            Box(
-                modifier = Modifier
-                    .width(20.dp)
-                    .height(2.dp)
-                    .background(Color.White, RoundedCornerShape(1.dp))
-            )
-        }
     }
 }
 
+// -----------------
+// Home Screen and sections
+// -----------------
 @Composable
 fun HomeScreen(
     onItemClick: () -> Unit,
@@ -381,29 +405,14 @@ fun HomeScreen(
 
         item {
             FeaturedChannelsSection(
-                onItemClick = onItemClick,
-//                onItemClick = onItemClick,
-                onPlayClick = onVideoPlayerClick
+                onItemClick = onItemClick
             )
         }
-//        item {
-//            AllChannelsSection(
-//                onItemClick = onItemClick,
-//                onPlayClick = onVideoPlayerClick
-//            )
-//        }
         item {
             MoviesSection(
-                onMovieClick = onMovieClick,
-                onPlayClick = onVideoPlayerClick
+                onMovieClick = onMovieClick
             )
         }
-//        item {
-//            WhatsNewSection(
-//                onItemClick = onItemClick,
-//                onPlayClick = onVideoPlayerClick
-//            )
-//        }
     }
 }
 
@@ -420,13 +429,13 @@ fun HeroSection(onVideoPlayerClick: () -> Unit) {
     // Auto-scroll functionality with smooth animation
     LaunchedEffect(Unit) {
         while (true) {
-            delay(4000) // Change slide every 6 seconds (slower)
+            delay(4000) // Change slide every 4 seconds
             val nextPage = (pagerState.currentPage + 1) % bannerImages.size
             pagerState.animateScrollToPage(
                 page = nextPage,
-                animationSpec = androidx.compose.animation.core.tween(
+                animationSpec = tween(
                     durationMillis = 1500, // Smooth 1.5 second transition
-                    easing = androidx.compose.animation.core.EaseInOutCubic
+                    easing = EaseInOutCubic
                 )
             )
         }
@@ -458,7 +467,7 @@ fun HeroSection(onVideoPlayerClick: () -> Unit) {
                     modifier = Modifier
                         .fillMaxSize()
                         .background(
-                            brush = androidx.compose.ui.graphics.Brush.verticalGradient(
+                            brush = Brush.verticalGradient(
                                 colors = listOf(
                                     Color.Transparent,
                                     Color.Black.copy(alpha = 0.3f),
@@ -484,55 +493,46 @@ fun HeroSection(onVideoPlayerClick: () -> Unit) {
                         modifier = Modifier.size(40.dp)
                     )
                 }
-                
-                // Movie title overlay
-                Text(
-                    text = "Tears of Steel - Demo Stream",
-                    color = Color.White,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier
-                        .align(Alignment.BottomStart)
-                        .padding(8.dp)
-                )
-                
-                // Video player indicator
-                Text(
-                    text = "HLS Stream",
-                    color = Color.White.copy(alpha = 0.8f),
-                    fontSize = 12.sp,
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(8.dp)
-                )
             }
         }
         
-        // Page indicator
+        // Page indicator (centered with 8.dp spacing between dots)
         Row(
             modifier = Modifier
+                .fillMaxWidth()
+                .height(45.dp)
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 30.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                .background(color = Color.Black.copy(alpha = 0.5f)),
+            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+            verticalAlignment = Alignment.CenterVertically
+
         ) {
             repeat(bannerImages.size) { index ->
                 Box(
                     modifier = Modifier
-                        .size(8.dp)
-                        .background(
-                            color = if (pagerState.currentPage == index) Color.White else Color.White.copy(alpha = 0.5f),
-                            shape = CircleShape
-                        )
-                )
+                        .size(12.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(8.dp)
+                            .background(
+                                color = if (pagerState.currentPage == index) Color.White else Color.White.copy(alpha = 0.5f),
+                                shape = CircleShape
+                            )
+                    )
+                }
             }
         }
     }
 }
 
+// -----------------
+// Channels / content sections
+// -----------------
 @Composable
 fun FeaturedChannelsSection(
-    onItemClick: () -> Unit,
-    onPlayClick: () -> Unit
+    onItemClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -555,10 +555,8 @@ fun FeaturedChannelsSection(
         ) {
             items(getFeaturedChannels()) { channel ->
                 ChannelCard(
-                    channel = channel, 
-                    onClick = onPlayClick,
-//                    onClick = onItemClick,
-                    onPlayClick = onPlayClick
+                    channel = channel,
+                    onClick = onItemClick
                 )
             }
         }
@@ -567,9 +565,8 @@ fun FeaturedChannelsSection(
 
 @Composable
 fun ChannelCard(
-    channel: Channel, 
-    onClick: () -> Unit,
-    onPlayClick: () -> Unit
+    channel: Channel,
+    onClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -578,7 +575,7 @@ fun ChannelCard(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(80.dp)
+                .height(120.dp)
                 .background(AppDarkGray, RoundedCornerShape(8.dp))
                 .clickable { onClick() }
         ) {
@@ -590,105 +587,24 @@ fun ChannelCard(
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Fit
             )
-            
-            // Play button overlay
-            Box(
-                modifier = Modifier
-                    .size(32.dp)
-                    .background(AppRed, CircleShape)
-                    .align(Alignment.Center)
-                    .padding(4.dp)
-                    .clickable { onPlayClick() },
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Default.PlayArrow,
-                    contentDescription = "Play",
-                    tint = Color.White,
-                    modifier = Modifier.size(16.dp)
-                )
-            }
+
+            Text(
+                text = "${channel.number} ${channel.name}",
+                fontSize = 12.sp,
+                color = Color.White,
+                modifier = Modifier.padding(top = 4.dp).align(Alignment.BottomCenter)
+            )
         }
-        Text(
-            text = "${channel.number} ${channel.name}",
-            fontSize = 12.sp,
-            color = Color.White,
-            modifier = Modifier.padding(top = 4.dp)
-        )
+
     }
 }
 
-@Composable
-fun AllChannelsSection(
-    onItemClick: () -> Unit,
-    onPlayClick: () -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp)
-    ) {
-        Text(
-            text = "All TV Channels",
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.White,
-            modifier = Modifier
-                .clickable { /* Handle section click */ }
-                .padding(bottom = 16.dp)
-        )
-        
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            items(getAllChannels()) { channel ->
-                ChannelCard(
-                    channel = channel, 
-                    onClick = onItemClick,
-                    onPlayClick = onPlayClick
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun WhatsNewSection(
-    onItemClick: () -> Unit,
-    onPlayClick: () -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp)
-    ) {
-        Text(
-            text = "What's New",
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.White,
-            modifier = Modifier
-                .clickable { /* Handle section click */ }
-                .padding(bottom = 16.dp)
-        )
-        
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            items(getWhatsNewContent()) { content ->
-                ContentCard(
-                    content = content, 
-                    onClick = onItemClick,
-                    onPlayClick = onPlayClick
-                )
-            }
-        }
-    }
-}
-
+// -----------------
+// Content / Movies
+// -----------------
 @Composable
 fun ContentCard(
-    content: Content, 
+    content: Content,
     onClick: () -> Unit,
     onPlayClick: () -> Unit
 ) {
@@ -846,37 +762,6 @@ fun getChannelImageResource(channelName: String): Int {
     }
 }
 
-fun getActionMovies(): List<Movie> {
-    return listOf(
-        Movie("21 Bridges", 2019, "Action", "1h 39m", R.drawable.bridges_21,R.drawable.bridges_21_poster),
-        Movie("Mission Impossible: Fallout", 2018, "Action", "2h 27m", R.drawable.mission_impossible_fallout,R.drawable.mission_impossible_fallout_poster),
-        Movie("Braven", 2018, "Action", "1h 34m", R.drawable.braven,R.drawable.braven_poster),
-        Movie("Underworld: Blood Wars", 2016, "Action", "1h 31m", R.drawable.underworld_blood_wars,R.drawable.underworld_blood_wars_poster, true)
-    )
-}
-
-fun getLoveMovies(): List<Movie> {
-    return listOf(
-        Movie("Frozen II", 2019, "Animation", "1h 43m", R.drawable.frozen_ii,R.drawable.frozen_poster),
-        Movie("Maleficent", 2014, "Fantasy", "1h 37m", R.drawable.maleficent,R.drawable.maleficent_poster),
-        Movie("Aladdin", 2019, "Adventure", "2h 8m", R.drawable.aladdin,R.drawable.aladdin_poster),
-        Movie("Aquaman", 2018, "Action", "2h 23m", R.drawable.aquaman,R.drawable.aquaman_poster, true)
-    )
-}
-
-fun getScienceFictionMovies(): List<Movie> {
-    return listOf(
-        Movie("Alita: Battle Angel", 2019, "Sci-Fi", "2h 2m", R.drawable.alita_battle_angel,R.drawable.alita_battle_angel_poster),
-        Movie("Black Widow", 2021, "Action", "2h 14m", R.drawable.black_widow_poster,R.drawable.black_widow_preview),
-        Movie("Focus", 2015, "Crime", "1h 45m", R.drawable.focus,R.drawable.focus_poster),
-        Movie("Braven", 2018, "Action", "1h 34m", R.drawable.braven,R.drawable.braven_poster, true)
-    )
-}
-
-fun getAllMovies(): List<Movie> {
-    return getActionMovies() + getLoveMovies() + getScienceFictionMovies()
-}
-
 fun getWhatsNewContent(): List<Content> {
     return listOf(
         Content("HBO Original Series", true),
@@ -892,8 +777,7 @@ fun getWhatsNewContent(): List<Content> {
 
 @Composable
 fun MoviesSection(
-    onMovieClick: (Movie) -> Unit,
-    onPlayClick: () -> Unit
+    onMovieClick: (Movie) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -916,8 +800,7 @@ fun MoviesSection(
             items(getAllMovies()) { movie ->
                 MovieCard(
                     movie = movie,
-                    onMovieClick = onMovieClick,
-                    onPlayClick = onPlayClick
+                    onMovieClick = onMovieClick
                 )
             }
         }
@@ -927,8 +810,7 @@ fun MoviesSection(
 @Composable
 fun MovieCard(
     movie: Movie,
-    onMovieClick: (Movie) -> Unit,
-    onPlayClick: () -> Unit
+    onMovieClick: (Movie) -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -965,23 +847,6 @@ fun MovieCard(
                         fontWeight = FontWeight.Bold
                     )
                 }
-            }
-            
-            // Play button overlay
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .background(AppRed, CircleShape)
-                    .align(Alignment.Center)
-                    .clickable { onPlayClick() },
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Default.PlayArrow,
-                    contentDescription = "Play",
-                    tint = Color.White,
-                    modifier = Modifier.size(20.dp)
-                )
             }
             
             Text(

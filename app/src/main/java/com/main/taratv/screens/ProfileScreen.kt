@@ -13,10 +13,16 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+
+import com.main.taratv.R
 
 @Composable
 fun ProfileScreen() {
@@ -26,23 +32,154 @@ fun ProfileScreen() {
                 .padding(8.dp),
         ) {
 
-        item {
-            UserProfileSection()
-        }
+//        item {
+//            UserProfileSection()
+//        }
+//
+//        item {
+//            SubscriptionSection()
+//        }
+        
+//        item {
+//            SettingsSection()
+//        }
         
         item {
-            SubscriptionSection()
-        }
-        
-        item {
-            SettingsSection()
-        }
-        
-        item {
-            SupportSection()
+//            SupportSection()
+            DrawerScreen()
         }
     }
 }
+@Composable
+fun DrawerMenu(items: List<DrawerItem>) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp)
+    ) {
+        items.forEach { item ->
+            DrawerMenuItem(item)
+        }
+    }
+}
+
+
+data class DrawerItem(
+    val title: String,
+    val icon: ImageVector? = null,
+    val iconRes: Int? = null
+)
+
+@Composable
+fun DrawerMenuItem(item: DrawerItem) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { /* Handle click */ }
+            .padding(vertical = 14.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+
+        if (item.iconRes != null) {
+            Icon(
+                painter = painterResource(id = item.iconRes),
+                contentDescription = item.title,
+                tint = Color.White,
+                modifier = Modifier.size(22.dp)
+            )
+        } else if (item.icon != null) {
+            Icon(
+                imageVector = item.icon,
+                contentDescription = item.title,
+                tint = Color.White,
+                modifier = Modifier.size(22.dp)
+            )
+        }
+
+        Spacer(modifier = Modifier.width(16.dp))
+
+        Text(
+            text = item.title,
+            color = Color.White,
+            fontSize = 16.sp
+        )
+    }
+
+    HorizontalDivider(color = Color.DarkGray, thickness = 0.5.dp)
+}
+
+
+@Composable
+fun DrawerScreen() {
+    val items = listOf(
+        DrawerItem("Podcasts", iconRes = R.drawable.podcast),
+        DrawerItem("Academy", iconRes = R.drawable.academy),
+        DrawerItem("e-Books", iconRes = R.drawable.ebooks),
+        DrawerItem("Foundation", iconRes = R.drawable.foundation),
+        DrawerItem("Shopping", iconRes = R.drawable.shopping),
+        DrawerItem("Finance", iconRes = R.drawable.finance)
+    )
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(
+                        Color.Black,
+                        Color(0xFF1A1A1A)
+                    )
+                )
+            )
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
+            Spacer(modifier = Modifier.height(40.dp))
+
+            // Profile Image (placeholder)
+
+
+            Text(
+                text = "Bilal Hassan",
+                color = Color.White,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold
+            )
+
+            Text(
+                text = "Sydney, Australia",
+                color = Color.Gray,
+                fontSize = 14.sp
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            Box(
+                modifier = Modifier
+                    .size(90.dp)
+                    .clip(CircleShape)
+                    .background(Color(0xFF00BFFF)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Person,
+                    contentDescription = "Profile",
+                    tint = Color.White,
+                    modifier = Modifier.size(40.dp)
+                )
+            }
+
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            HorizontalDivider(color = Color.DarkGray)
+
+            DrawerMenu(items)
+        }
+    }
+}
+
 
 @Composable
 fun UserProfileSection() {
@@ -199,49 +336,49 @@ fun SettingsSection() {
 
 @Composable
 fun SettingsItem(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    title: String,
-    subtitle: String
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { /* Handle settings click */ }
-            .padding(vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = title,
-            tint = Color.Gray,
-            modifier = Modifier.size(24.dp)
-        )
-        
-        Spacer(modifier = Modifier.width(16.dp))
-        
-        Column(
-            modifier = Modifier.weight(1f)
-        ) {
-            Text(
-                text = title,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Medium
-            )
-            Text(
-                text = subtitle,
-                fontSize = 14.sp,
-                color = Color.Gray
-            )
-        }
-        
-        Icon(
-            imageVector = Icons.Default.ArrowForward,
-            contentDescription = "Navigate",
-            tint = Color.Gray,
-            modifier = Modifier.size(20.dp)
-        )
-    }
-}
+    icon: ImageVector,
+     title: String,
+     subtitle: String
+ ) {
+     Row(
+         modifier = Modifier
+             .fillMaxWidth()
+             .clickable { /* Handle settings click */ }
+             .padding(vertical = 12.dp),
+         verticalAlignment = Alignment.CenterVertically
+     ) {
+         Icon(
+             imageVector = icon,
+             contentDescription = title,
+             tint = Color.Gray,
+             modifier = Modifier.size(24.dp)
+         )
+
+         Spacer(modifier = Modifier.width(16.dp))
+
+         Column(
+             modifier = Modifier.weight(1f)
+         ) {
+             Text(
+                 text = title,
+                 fontSize = 16.sp,
+                 fontWeight = FontWeight.Medium
+             )
+             Text(
+                 text = subtitle,
+                 fontSize = 14.sp,
+                 color = Color.Gray
+             )
+         }
+
+         Icon(
+             imageVector = Icons.Default.ArrowForward,
+             contentDescription = "Navigate",
+             tint = Color.Gray,
+             modifier = Modifier.size(20.dp)
+         )
+     }
+ }
 
 @Composable
 fun SupportSection() {
@@ -287,4 +424,4 @@ fun SupportSection() {
             subtitle = "Version 1.0.0"
         )
     }
-} 
+}

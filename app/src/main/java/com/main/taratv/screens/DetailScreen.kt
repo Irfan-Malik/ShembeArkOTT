@@ -185,18 +185,18 @@ fun HeroSection(
                 )
                 
                 // Star rating
-                Row(
-                    modifier = Modifier.padding(vertical = 4.dp)
-                ) {
-                    repeat(5) { index ->
-                        Icon(
-                            imageVector = Icons.Default.Star,
-                            contentDescription = "Star",
-                            tint = if (index < 4) Color(0xFF00BFFF) else Color.Gray,
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
-                }
+//                Row(
+//                    modifier = Modifier.padding(vertical = 4.dp)
+//                ) {
+//                    repeat(5) { index ->
+//                        Icon(
+//                            imageVector = Icons.Default.Star,
+//                            contentDescription = "Star",
+//                            tint = if (index < 4) Color(0xFF00BFFF) else Color.Gray,
+//                            modifier = Modifier.size(20.dp)
+//                        )
+//                    }
+//                }
             }
             
             // Thumbnail on the right
@@ -416,40 +416,40 @@ fun SuggestionMovieCard(movie: Movie, onMovieClick: (Movie) -> Unit = {}) {
             )
             
             // Premium indicator
-            if (movie.isPremium) {
-                Box(
-                    modifier = Modifier
-                        .size(24.dp)
-                        .background(AppRed, CircleShape)
-                        .align(Alignment.TopEnd)
-                        .padding(4.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "$",
-                        color = Color.White,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
+//            if (movie.isPremium) {
+//                Box(
+//                    modifier = Modifier
+//                        .size(24.dp)
+//                        .background(AppRed, CircleShape)
+//                        .align(Alignment.TopEnd)
+//                        .padding(4.dp),
+//                    contentAlignment = Alignment.Center
+//                ) {
+//                    Text(
+//                        text = "$",
+//                        color = Color.White,
+//                        fontSize = 12.sp,
+//                        fontWeight = FontWeight.Bold
+//                    )
+//                }
+//            }
             
             // Play button overlay
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .background(AppRed, CircleShape)
-                    .align(Alignment.Center)
-                    .clickable { onMovieClick(movie) },
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Default.PlayArrow,
-                    contentDescription = "Play",
-                    tint = Color.White,
-                    modifier = Modifier.size(20.dp)
-                )
-            }
+//            Box(
+//                modifier = Modifier
+//                    .size(40.dp)
+//                    .background(AppRed, CircleShape)
+//                    .align(Alignment.Center)
+//                    .clickable { onMovieClick(movie) },
+//                contentAlignment = Alignment.Center
+//            ) {
+//                Icon(
+//                    imageVector = Icons.Default.PlayArrow,
+//                    contentDescription = "Play",
+//                    tint = Color.White,
+//                    modifier = Modifier.size(20.dp)
+//                )
+//            }
         }
         
         Text(

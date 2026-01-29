@@ -1,0 +1,30 @@
+[
+  {
+    "title": "21 Bridges",
+    "year": 2019,
+    "genre": "Action",
+    "duration": "1h 39m",
+    "imageName": "bridges_21",
+    "posterName": "bridges_21_poster",
+    "isPremium": false
+  },
+  {
+    "title": "Mission Impossible: Fallout",
+    "year": 2018,
+    "genre": "Action",
+    "duration": "2h 27m",
+    "imageName": "mission_impossible_fallout",
+    "posterName": "mission_impossible_fallout_poster",
+    "isPremium": false
+  },
+  {
+    "title": "Aquaman",
+    "year": 2018,
+    "genre": "Action",
+    "duration": "2h 23m",
+    "imageName": "aquaman",
+    "posterName": "aquaman_poster",
+    "isPremium": true
+  }
+]
+

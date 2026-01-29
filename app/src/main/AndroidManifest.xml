@@ -9,9 +9,9 @@
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@drawable/playstore_icon"
+        android:icon="@drawable/logo"
         android:label="@string/app_name"
-        android:roundIcon="@drawable/playstore_icon"
+        android:roundIcon="@drawable/logo"
         android:supportsRtl="true"
         android:theme="@style/Theme.TaraTV"
         tools:targetApi="31">
@@ -19,7 +19,7 @@
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.TaraTV"
+            android:theme="@style/Theme.TaraTV.Splash"
             android:screenOrientation="sensor"
             android:configChanges="orientation|screenSize|keyboardHidden">
             <intent-filter>

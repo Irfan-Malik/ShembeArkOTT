@@ -1,0 +1,6 @@
+[
+  { "name": "CNN", "number": 3, "category": "News" },
+  { "name": "HBO", "number": 13, "category": "Entertainment" },
+  { "name": "Fox Sports", "number": 23, "category": "Sports" }
+]
+
