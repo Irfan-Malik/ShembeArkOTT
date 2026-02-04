@@ -52,7 +52,7 @@ fun NavigationDrawer(
                     item {
                         UserProfileSection()
                     }
-                    
+
                     items(getNavigationItems()) { item ->
                         NavigationDrawerItem(
                             item = item,
@@ -77,7 +77,13 @@ fun UserProfileSection() {
                 .padding(16.dp)
 
         ) {
-            Image(painter = painterResource(id = R.drawable.app_logo),contentDescription = null, modifier = Modifier.height(30.dp).width(170.dp))
+            Image(
+                painter = painterResource(id = R.drawable.app_logo),
+                contentDescription = null,
+                modifier = Modifier
+                    .height(30.dp)
+                    .width(170.dp)
+            )
         }
     }
 }
@@ -88,21 +94,21 @@ fun NavigationDrawerItem(
     onClick: () -> Unit
 ) {
     var isExpanded by remember { mutableStateOf(false) }
-    
+
     Column {
-                    Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { 
-                        if (item.hasSubItems) {
-                            isExpanded = !isExpanded
-                        } else {
-                            onClick()
-                        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable {
+                    if (item.hasSubItems) {
+                        isExpanded = !isExpanded
+                    } else {
+                        onClick()
                     }
-                    .padding(vertical = 12.dp, horizontal = 8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+                }
+                .padding(vertical = 12.dp, horizontal = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             if (item.iconRes != null) {
                 Icon(
                     painter = painterResource(id = item.iconRes),
@@ -120,7 +126,7 @@ fun NavigationDrawerItem(
             }
 
             Spacer(modifier = Modifier.width(16.dp))
-            
+
             Text(
                 text = item.title,
                 color = if (item.isSelected) Color.White else Color.White.copy(alpha = 0.8f),
@@ -128,7 +134,7 @@ fun NavigationDrawerItem(
                 fontWeight = if (item.isSelected) FontWeight.Bold else FontWeight.Normal,
                 modifier = Modifier.weight(1f)
             )
-            
+
             if (item.hasSubItems) {
                 Text(
                     text = if (isExpanded) "▼" else "▶",
@@ -137,7 +143,7 @@ fun NavigationDrawerItem(
                 )
             }
         }
-        
+
         // Selection indicator
         if (item.isSelected) {
             Box(
@@ -147,7 +153,7 @@ fun NavigationDrawerItem(
                     .background(Color(0xFF00BFFF))
             )
         }
-        
+
         // Sub-items
         if (item.hasSubItems && isExpanded) {
             item.subItems?.forEach { subItem ->
@@ -175,7 +181,7 @@ fun NavigationDrawerItem(
                     }
 
                     Spacer(modifier = Modifier.width(12.dp))
-                    
+
                     Text(
                         text = subItem.title,
                         color = Color.White.copy(alpha = 0.7f),

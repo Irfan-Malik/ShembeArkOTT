@@ -1,12 +1,11 @@
 package com.main.taratv.screens
 
-import android.graphics.drawable.Icon
-import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
@@ -33,33 +32,30 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.fontscaling.MathUtils.lerp
+import androidx.compose.ui.unit.sp
 import com.main.taratv.R
-import com.main.taratv.MovieCard
-import com.main.taratv.data.MockApi
+
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.main.taratv.MOVIE_STREAM_URL
+import com.main.taratv.components.MovieCard
 import com.main.taratv.viewmodel.MoviesViewModel
-import kotlinx.coroutines.flow.collect
 
 @Composable
 fun MoviesScreen(
     onMovieClick: (Movie) -> Unit = {},
-    onPlayClick: () -> Unit = {}
+    onPlayClick: (String?) -> Unit = {}
 ) {
     var selectedTab by rememberSaveable { mutableStateOf(0) }
     val moviesViewModel: MoviesViewModel = viewModel()
     val moviesState by moviesViewModel.movies.collectAsState()
 
     Column(modifier = Modifier
-        .fillMaxSize()
         .background(Color.Black)
     ) {
         MoviesTabRow(selectedTab = selectedTab, onTabSelected = { selectedTab = it })
@@ -68,7 +64,7 @@ fun MoviesScreen(
             Spacer(modifier = Modifier.height(12.dp))
 
             Text(
-                text = "Popular Movies",
+                text = "Editors Picks",
                 color = Color.White,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
@@ -101,7 +97,7 @@ fun MoviesScreen(
                 contentPadding = PaddingValues(horizontal = 8.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                items(getScienceFictionMovies()) { movie ->
+                items(getLoveMovies()) { movie ->
                     MovieCard(
                         movie = movie,
                         onMovieClick = onMovieClick,
@@ -110,14 +106,85 @@ fun MoviesScreen(
             }
 
         } else {
-            TrendingNowSection(
-                items = trendingItems,
-                onItemClick = { series -> /* navigate to detail */ }
-            )
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+            ) {
+                item {
+                    Section("Trending Now", trendingItems,onItemClick = { series ->}, onPlayClick = onPlayClick /* navigate to detail */  )
+                }
+                item {
+                    Section("Trending Now", trendingItems,onItemClick = { series ->},
+                        onPlayClick = onPlayClick/* navigate to detail */  )
+                }
+                item {
+                    Section("Don't Miss This", trendingItems,onItemClick = { series -> },onPlayClick = onPlayClick/* navigate to detail */  )
+                }
+            }
+//            TrendingNowSection(
+//                items = trendingItems,
+//                onItemClick = { series -> /* navigate to detail */ }
+//            )
         }
 
     }
 }
+
+@Composable
+fun Section(title: String, items: List<SeriesItem>, onItemClick: (SeriesItem) -> Unit,onPlayClick: (String?) -> Unit = {}) {
+    Column(modifier = Modifier.padding(top = 5.dp)) {
+        Text(
+            title,
+            color = Color.White,
+            fontSize = 18.sp,
+            modifier = Modifier.padding(start = 16.dp, bottom = 4.dp)
+        )
+
+        LazyRow {
+            items(items) { item ->
+                MediaCard(item, onClick = { streamUrl ->
+                    // play stream when media card clicked
+                    onPlayClick(streamUrl)
+                })
+            }
+        }
+    }
+}
+
+@Composable
+fun MediaCard(item: SeriesItem, onClick: (String?) -> Unit) {
+    Box(
+        modifier = Modifier
+            .width(160.dp)
+            .clip(RoundedCornerShape(8.dp))
+            .clickable { onClick(item.imageUrl) }
+    ) {
+        Column(
+            modifier = Modifier
+                .width(160.dp)
+                .padding(start = 6.dp)
+        ) {
+            Image(
+                painter = painterResource(item.image),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .height(110.dp)
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(8.dp))
+            )
+            Spacer(Modifier.height(6.dp))
+            Text(
+                item.title,
+                color = Color.White,
+                maxLines = 2,
+                fontSize = 13.sp
+            )
+        }
+    }
+}
+
+
 
 @Composable
 fun MoviesTabRow(selectedTab: Int, onTabSelected:  (Int) -> Unit) {
@@ -363,8 +430,9 @@ fun TrendingNowPagerSection(items: List<SeriesItem>) {
     }
 }
 val trendingItems = listOf(
-    SeriesItem(1, "New Headway 01", "Short Soulfull Drama Serial", "https://...", "English Subtitle"),
-    SeriesItem(2, "For Young Lee", "New Drama Series", "https://...", "For Young"),
+    SeriesItem(1, "New Headway 01", "Short Soulfull Drama Serial",MOVIE_STREAM_URL,R.drawable.newheadway_screenshot, "English Subtitle"),
+    SeriesItem(2, "For Young Lee", "New Drama Series", MOVIE_STREAM_URL,R.drawable.foryounglearners, "For Young"),
+    SeriesItem(3, "Short Film Soulfull Drama Seriale", "New Drama Series", MOVIE_STREAM_URL,R.drawable.shortfilmfunny, "For Young"),
     // ...
 )
 
@@ -374,6 +442,7 @@ data class SeriesItem(
     val id: Int,
     val title: String,           // e.g. "New Headway 01"
     val subtitle: String?,       // e.g. "Short Soulfull Drama Serial"
-    val imageUrl: String,        // poster URL
+    val imageUrl: String,
+    val image: Int,// poster URL
     val label: String? = null    // e.g. "For Young", "English Subtitle"
 )

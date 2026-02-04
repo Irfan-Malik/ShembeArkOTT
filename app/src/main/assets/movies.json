@@ -1,30 +1,30 @@
 [
   {
-    "title": "21 Bridges",
-    "year": 2019,
-    "genre": "Action",
-    "duration": "1h 39m",
-    "imageName": "bridges_21",
-    "posterName": "bridges_21_poster",
+    "title": "The Lost Island",
+    "year": 2023,
+    "genre": "Adventure",
+    "duration": "1h 45m",
+    "imageName": "movie_img_1",
+    "posterName": "movie_poster_1",
     "isPremium": false
   },
   {
-    "title": "Mission Impossible: Fallout",
-    "year": 2018,
-    "genre": "Action",
-    "duration": "2h 27m",
-    "imageName": "mission_impossible_fallout",
-    "posterName": "mission_impossible_fallout_poster",
-    "isPremium": false
-  },
-  {
-    "title": "Aquaman",
-    "year": 2018,
-    "genre": "Action",
-    "duration": "2h 23m",
-    "imageName": "aquaman",
-    "posterName": "aquaman_poster",
+    "title": "Midnight Run",
+    "year": 2024,
+    "genre": "Thriller",
+    "duration": "2h 5m",
+    "imageName": "movie_img_2",
+    "posterName": "movie_poster_2",
     "isPremium": true
+  },
+  {
+    "title": "Shembe Ark - Pilot",
+    "year": 2025,
+    "genre": "Drama",
+    "duration": "45m",
+    "imageName": "series_img_1",
+    "posterName": "series_poster_1",
+    "isPremium": false
   }
 ]
 

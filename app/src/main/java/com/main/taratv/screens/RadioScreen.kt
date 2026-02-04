@@ -11,7 +11,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -22,13 +21,12 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import com.main.taratv.ui.theme.*
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.main.taratv.R
 
 @Composable
-fun RadioScreen(onPlayClick: () -> Unit = {}) {
+fun RadioScreen(onPlayClick: (String?) -> Unit = {}) {
             LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -89,7 +87,7 @@ fun RadioSearchBar() {
 }
 
 @Composable
-fun NowPlayingSection(onPlayClick: () -> Unit = {}) {
+fun NowPlayingSection(onPlayClick: (String?) -> Unit = {}) {
     Spacer(modifier = Modifier.height(12.dp))
     Box(
         modifier = Modifier
@@ -131,7 +129,7 @@ fun NowPlayingSection(onPlayClick: () -> Unit = {}) {
                     modifier = Modifier
                         .size(48.dp)
                         .background(Color.White, CircleShape)
-                        .clickable { onPlayClick() },
+                        .clickable { onPlayClick(null) },
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
@@ -162,7 +160,7 @@ fun NowPlayingSection(onPlayClick: () -> Unit = {}) {
 }
 
 @Composable
-fun CategorySection(title: String, stations: List<RadioStation>, onPlayClick: () -> Unit = {}) {
+fun CategorySection(title: String, stations: List<RadioStation>, onPlayClick: (String?) -> Unit = {}) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -187,7 +185,7 @@ fun CategorySection(title: String, stations: List<RadioStation>, onPlayClick: ()
 }
 
 @Composable
-fun RadioStationCard(station: RadioStation, onPlayClick: () -> Unit = {}) {
+fun RadioStationCard(station: RadioStation, onPlayClick: (String?) -> Unit = {}) {
     Column(
         modifier = Modifier
             .width(120.dp)
@@ -207,23 +205,6 @@ fun RadioStationCard(station: RadioStation, onPlayClick: () -> Unit = {}) {
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Fit
             )
-            
-            // Play button overlay
-//            Box(
-//                modifier = Modifier
-//                    .size(32.dp)
-//                    .background(AppRed, CircleShape)
-//                    .align(Alignment.Center)
-//                    .clickable { onPlayClick() },
-//                contentAlignment = Alignment.Center
-//            ) {
-//                Icon(
-//                    imageVector = Icons.Default.PlayArrow,
-//                    contentDescription = "Play",
-//                    tint = Color.White,
-//                    modifier = Modifier.size(16.dp)
-//                )
-//            }
         }
         Text(
             text = station.name,
@@ -290,4 +271,4 @@ fun getRadioStationImageResource(stationName: String): Int {
         "AM 1600" -> R.drawable.am1600
         else -> R.drawable.radio // fallback image
     }
-} 
+}

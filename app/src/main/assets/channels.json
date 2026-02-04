@@ -1,6 +1,7 @@
 [
-  { "name": "CNN", "number": 3, "category": "News" },
-  { "name": "HBO", "number": 13, "category": "Entertainment" },
-  { "name": "Fox Sports", "number": 23, "category": "Sports" }
+  { "name": "Shembe TV", "number": 1, "category": "Music" },
+  { "name": "Shembe News", "number": 2, "category": "News" },
+  { "name": "Shembe Sports", "number": 3, "category": "Sports" },
+  { "name": "Shembe Kids", "number": 4, "category": "Kids" }
 ]
 

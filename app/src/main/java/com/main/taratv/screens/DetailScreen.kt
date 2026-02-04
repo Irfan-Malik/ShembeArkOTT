@@ -34,7 +34,7 @@ import androidx.compose.foundation.Image
 fun DetailScreen(
     movie: Movie? = null,
     onBackClick: () -> Unit,
-    onPlayClick: () -> Unit,
+    onPlayClick: (String?) -> Unit,
     onShareClick: () -> Unit,
     onAddToListClick: () -> Unit,
     onMovieClick: (Movie) -> Unit = {}
@@ -71,14 +71,6 @@ fun DetailScreen(
             item {
                 SuggestionsSection(movie = movie, onMovieClick = onMovieClick)
             }
-            
-//            item {
-//                TabSection()
-//            }
-            
-//            item {
-//                EpisodesSection()
-//            }
         }
     }
 }
@@ -87,7 +79,7 @@ fun DetailScreen(
 fun HeroSection(
     movie: Movie?,
     onBackClick: () -> Unit,
-    onPlayClick: () -> Unit,
+    onPlayClick: (String?) -> Unit,
     onShareClick: () -> Unit
 ) {
     Box(
@@ -153,7 +145,7 @@ fun HeroSection(
                     .size(80.dp)
                     .background(Color(0xFF00BFFF), CircleShape)
                     .align(Alignment.Center)
-                    .clickable { onPlayClick() },
+                    .clickable { onPlayClick(null) },
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
@@ -183,20 +175,6 @@ fun HeroSection(
                     fontSize = 14.sp,
                     modifier = Modifier.padding(vertical = 4.dp)
                 )
-                
-                // Star rating
-//                Row(
-//                    modifier = Modifier.padding(vertical = 4.dp)
-//                ) {
-//                    repeat(5) { index ->
-//                        Icon(
-//                            imageVector = Icons.Default.Star,
-//                            contentDescription = "Star",
-//                            tint = if (index < 4) Color(0xFF00BFFF) else Color.Gray,
-//                            modifier = Modifier.size(20.dp)
-//                        )
-//                    }
-//                }
             }
             
             // Thumbnail on the right
@@ -673,4 +651,4 @@ fun getEpisodes(): List<Episode> {
             "Catelyn has captured Tyrion and plans to bring him to her sister, Lysa Arryn."
         )
     )
-} 
+}

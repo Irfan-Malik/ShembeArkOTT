@@ -2,20 +2,24 @@ package com.main.taratv.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.PushPin
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -25,14 +29,28 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
 import com.main.taratv.R
 import com.main.taratv.viewmodel.TvViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.ui.PlayerView
+import com.main.taratv.LIVE_STREAM_URL
 
 @Composable
-fun TvScreen(onPlayClick: () -> Unit = {}) {
+fun TvScreen(onPlayClick: (String?) -> Unit = {}) {
     val tvViewModel: TvViewModel = viewModel()
     val channelsState by tvViewModel.channels.collectAsState()
+
+    // local currently-playing stream URL (so PlayerHeader can react)
+    var currentStream by remember { mutableStateOf(LIVE_STREAM_URL) }
+    // key to force reload even if url is same
+    var currentStreamKey by remember { mutableStateOf(0L) }
+
+    // Group channels by category before entering LazyColumn (avoid DSL scoping issues)
+    val grouped = channelsState.groupBy { it.category.ifBlank { "Misc" } }
 
     LazyColumn(
         modifier = Modifier
@@ -40,49 +58,185 @@ fun TvScreen(onPlayClick: () -> Unit = {}) {
             .padding(8.dp)
     ) {
         item {
-            TvSearchBar()
+             PlayerHeader(url = currentStream, reloadKey = currentStreamKey)
+        }
+        item {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(6.dp)
+                        .align(Alignment.BottomCenter),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("HD", color = Color.White)
+                    Icon(Icons.Default.PlayArrow, null, tint = Color.White)
+                    Icon(Icons.Default.PushPin, null, tint = Color.Blue)
+                    Icon(Icons.Default.Tune, null, tint = Color.White)
+                }
+            }
+        }
+        item {
+//            TvSearchBar()
+            // pass a wrapper that updates local player and also notifies parent
+            FeaturedChannelsSection(onPlayClick = { url ->
+                // ensure we always cause player to recreate even if url is same
+                currentStream = url ?: LIVE_STREAM_URL
+                currentStreamKey += 1L
+                // notify parent callback as well
+//                onPlayClick(url)
+            })
         }
 
-        // Group channels by category and display
-        val grouped = channelsState.groupBy { it.category.ifBlank { "Misc" } }
-        grouped.forEach { (category, list) ->
-            item {
-                CategorySection(title = category, channels = list, onPlayClick = onPlayClick)
+        // Display grouped sections
+//        grouped.forEach { entry ->
+//            item {
+//                CategorySection(title = entry.key, channels = entry.value, onPlayClick = { url ->
+//                    // when category items are clicked, also update the player and force reload
+//                    currentStream = url ?: LIVE_STREAM_URL
+//                    currentStreamKey += 1L
+//                    // notify parent
+//                    onPlayClick(url)
+//                })
+//            }
+//        }
+    }
+}
+@Composable
+fun FeaturedChannelsSection(onPlayClick: (String?) -> Unit = {}) {
+    Column(modifier = Modifier.padding(16.dp)) {
+        Text(
+            text = "Featured Channels (2)",
+            color = Color.White,
+            fontSize = 16.sp
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // The featured images to show (ctn, gear, ctn, mtv)
+        val featuredImages = listOf(
+            R.drawable.ctn,
+            R.drawable.gear,
+            R.drawable.cnn,
+            R.drawable.mtv
+        )
+
+        // selected index local to featured section
+        var selectedIndex by remember { mutableStateOf<Int?>(null) }
+
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            itemsIndexed(featuredImages) { index, imageRes ->
+                val isSelected = selectedIndex == index
+                ChannelItem(imageResId = imageRes, isSelected = isSelected) {
+                    selectedIndex = index
+                    onPlayClick(LIVE_STREAM_URL)
+                }
             }
         }
     }
 }
-
 @Composable
-fun TvSearchBar() {
+fun ChannelItem(imageResId: Int = R.drawable.ctn, isSelected: Boolean = false, onClick: () -> Unit = {}) {
+    Box(
+        modifier = Modifier
+            .size(90.dp)
+            .padding(end = 8.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .background(Color.Black)
+            .then(
+                if (isSelected) Modifier.border(width = 2.dp, color = CustomBlue, shape = RoundedCornerShape(12.dp))
+                else Modifier
+            )
+            .clickable { onClick() },
+        contentAlignment = Alignment.Center
+    ) {
+        Image(
+            painter = painterResource(imageResId),
+            contentDescription = null,
+            modifier = Modifier.size(45.dp),
+            contentScale = ContentScale.Fit
+        )
+    }
+}
+@Composable
+fun PlayerHeader(url: String, reloadKey: Long = 0L) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(AppLightGray, RoundedCornerShape(8.dp))
-            .padding(8.dp)
-            .clickable { /* Handle search click */ }
+            .height(240.dp)
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = Icons.Default.Search,
-                contentDescription = "Search",
-                tint = Color.Gray,
-                modifier = Modifier.size(20.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = "Search TV channels...",
-                color = Color.Gray,
-                fontSize = 16.sp
+        // use the provided url so header updates when selection changes
+        VideoPlayer(url = url, reloadKey = reloadKey)
+
+        // Top bar
+
+        // Bottom controls
+
+    }
+}
+
+@Composable
+fun VideoPlayer(url: String, reloadKey: Long = 0L) {
+    var isLoading by remember { mutableStateOf(true) }
+    val context = LocalContext.current
+    // Recreate ExoPlayer when URL or reloadKey changes so it starts the new media item
+    val exoPlayer = remember(url, reloadKey) {
+        ExoPlayer.Builder(context).build().apply {
+            setMediaItem(MediaItem.fromUri(url))
+            prepare()
+            playWhenReady = true
+        }
+    }
+
+    // register listener and release player when composable leaves
+    DisposableEffect(exoPlayer) {
+        val listener = object : Player.Listener {
+            override fun onIsLoadingChanged(isLoadingNow: Boolean) {
+                // no-op here
+            }
+
+            override fun onPlaybackStateChanged(playbackState: Int) {
+                isLoading = when (playbackState) {
+                    Player.STATE_BUFFERING -> true
+                    else -> false
+                }
+            }
+        }
+        exoPlayer.addListener(listener)
+        onDispose {
+            exoPlayer.removeListener(listener)
+            exoPlayer.release()
+        }
+    }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        AndroidView(
+            factory = {
+                PlayerView(it).apply {
+                    player = exoPlayer
+                    useController = false
+                }
+            },
+            modifier = Modifier.fillMaxSize()
+        )
+        if (isLoading) {
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center),
+                color = Color.White
             )
         }
     }
 }
 
+// TvSearchBar was removed because it's unused in the current UI. Reintroduce as needed.
+
 @Composable
-fun CategorySection(title: String, channels: List<TvChannel>, onPlayClick: () -> Unit = {}) {
+fun CategorySection(title: String, channels: List<TvChannel>, onPlayClick: (String?) -> Unit = {}) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -96,45 +250,72 @@ fun CategorySection(title: String, channels: List<TvChannel>, onPlayClick: () ->
             modifier = Modifier.padding(bottom = 12.dp)
         )
 
+        // Keep selected channel state local to this CategorySection so each category
+        // can have its own selection. We'll track by channel name.
+        val (selectedChannel, setSelectedChannel) = remember { mutableStateOf<String?>(null) }
+
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             items(channels) { channel ->
-                TvChannelCard(channel = channel, onPlayClick = onPlayClick)
+                val isSelected = selectedChannel == channel.name
+                TvChannelCard(
+                    channel = channel,
+                    isSelected = isSelected,
+                    onClick = {
+                        // mark selection and start playing the live stream
+                        setSelectedChannel(channel.name)
+                        onPlayClick(LIVE_STREAM_URL)
+                    }
+                )
             }
         }
     }
 }
 
 @Composable
-fun TvChannelCard(channel: TvChannel, onPlayClick: () -> Unit = {}) {
+fun TvChannelCard(channel: TvChannel, isSelected: Boolean = false, onPlayClick: (String?) -> Unit = {}, onClick: (() -> Unit)? = null) {
+    // Backwards-compatible overload: if onClick provided we'll use it, else use onPlayClick
+    val clickAction: () -> Unit = onClick ?: { onPlayClick(LIVE_STREAM_URL) }
+
     Column(
         modifier = Modifier
             .width(120.dp)
-            .clickable { /* Handle channel click */ }
+            .clickable { clickAction() }
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(80.dp)
-                .background(AppDarkGray, RoundedCornerShape(8.dp))
+                .clip(RoundedCornerShape(8.dp))
+                .background(AppDarkGray)
+                .then(
+                    if (isSelected) Modifier.border(width = 2.dp, color = CustomBlue, shape = RoundedCornerShape(8.dp))
+                    else Modifier
+                )
         ) {
             // Get the channel image resource ID based on channel name
             val imageResId = getChannelImageResource(channel.name)
-            Image(
-                painter = painterResource(id = imageResId),
-                contentDescription = channel.name,
+            // Center the image inside the box and give consistent size
+            Box(
                 modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Fit
-            )
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    painter = painterResource(id = imageResId),
+                    contentDescription = channel.name,
+                    modifier = Modifier.size(48.dp),
+                    contentScale = ContentScale.Fit
+                )
+            }
 
-            // Play button overlay
+            // Play button overlay (small)
             Box(
                 modifier = Modifier
                     .size(32.dp)
                     .background(AppRed, CircleShape)
                     .align(Alignment.Center)
-                    .clickable { onPlayClick() },
+                    .clickable { clickAction() },
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
@@ -186,6 +367,7 @@ fun getChannelImageResource(channelName: String): Int {
         else -> R.drawable.channels_img // fallback image
     }
 }
+
 
 data class TvChannel(
     val name: String,

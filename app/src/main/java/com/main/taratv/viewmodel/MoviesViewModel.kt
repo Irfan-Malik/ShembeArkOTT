@@ -22,12 +22,12 @@ class MoviesViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch {
             val ctx = getApplication<Application>().applicationContext
             val fetched = MockApi.fetchMovies(ctx)
-            if (fetched.isNotEmpty()) {
-                _movies.value = fetched
-            } else {
+//            if (fetched.isNotEmpty()) {
+//                _movies.value = fetched
+//            } else {
                 // fallback to local data defined in MoviesScreen file
                 _movies.value = com.main.taratv.screens.getAllMovies()
-            }
+//            }
         }
     }
 
