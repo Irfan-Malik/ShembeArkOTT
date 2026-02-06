@@ -13,6 +13,7 @@ val Pink40 = Color(0xFF7D5260)
 
 // New colors for forjiflix app
 val AppRed = Color(0xFF00BFFF)
+val AppBlue = Color(0xFF2D6AEF) // added AppBlue used by SignInScreen
 val AppBlack = Color(0xFF000000)
 val AppDarkGray = Color(0xFF424242)
 val AppLightGray = Color(0xFF757575)

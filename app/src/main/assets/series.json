@@ -1,114 +1,114 @@
 [
   {
-    "section": "New & Upcoming",
+    "section": "Trending Now",
     "items": [
       {
-        "title": "Nothing with Godi",
+        "title": "New Headway 01",
         "year": 2023,
         "genre": "Adventure",
         "duration": "1h 45m",
         "imageName": "movie_img_1",
         "posterName": "movie_poster_1",
         "isPremium": false,
-        "image": "godi_movie",
+        "image": "newheadway_screenshot",
         "streamingUrl": "https://stream.mux.com/EIzGWx97cP01fy48SLTdoRGLhhSGzFjZKksGBth79Fsw.m3u8"
       },
       {
-        "title": "Midnight Run",
+        "title": "For Young Lee",
         "year": 2024,
         "genre": "Thriller",
         "duration": "2h 5m",
         "imageName": "movie_img_2",
         "posterName": "movie_poster_2",
         "isPremium": true,
-        "image": "christ_movie",
+        "image": "foryounglearners",
         "streamingUrl": "https://stream.mux.com/EIzGWx97cP01fy48SLTdoRGLhhSGzFjZKksGBth79Fsw.m3u8"
       },
       {
-        "title": "Black Ashes",
+        "title": "Short Film Soulfull Drama Seriale",
         "year": 2025,
         "genre": "Drama",
         "duration": "45m",
         "imageName": "series_img_1",
         "posterName": "series_poster_1",
         "isPremium": false,
-        "image": "ashes_movie",
+        "image": "shortfilmfunny",
         "streamingUrl": "https://stream.mux.com/EIzGWx97cP01fy48SLTdoRGLhhSGzFjZKksGBth79Fsw.m3u8"
       }
     ]
   },
   {
-    "section": "Recommended for You",
+    "section": "Trending Now",
     "items": [
       {
-        "title": "Nothing with Godi",
+        "title": "New Headway 01",
         "year": 2023,
         "genre": "Adventure",
         "duration": "1h 45m",
         "imageName": "movie_img_1",
         "posterName": "movie_poster_1",
         "isPremium": false,
-        "image": "godi_movie",
+        "image": "newheadway_screenshot",
         "streamingUrl": "https://stream.mux.com/EIzGWx97cP01fy48SLTdoRGLhhSGzFjZKksGBth79Fsw.m3u8"
       },
       {
-        "title": "Christ in You",
+        "title": "For Young Lee",
         "year": 2024,
         "genre": "Thriller",
         "duration": "2h 5m",
         "imageName": "movie_img_2",
         "posterName": "movie_poster_2",
         "isPremium": true,
-        "image": "christ_movie",
+        "image": "foryounglearners",
         "streamingUrl": "https://stream.mux.com/EIzGWx97cP01fy48SLTdoRGLhhSGzFjZKksGBth79Fsw.m3u8"
       },
       {
-        "title": "Black Ashes",
+        "title": "Short Film Soulfull Drama Seriale",
         "year": 2025,
         "genre": "Drama",
         "duration": "45m",
         "imageName": "series_img_1",
         "posterName": "series_poster_1",
         "isPremium": false,
-        "image": "ashes_movie",
+        "image": "shortfilmfunny",
         "streamingUrl": "https://stream.mux.com/EIzGWx97cP01fy48SLTdoRGLhhSGzFjZKksGBth79Fsw.m3u8"
       }
     ]
   },
   {
-    "section": "Editor's Picks",
+    "section": "Don't Miss This",
     "items": [
       {
-        "title": "Nothing with Godi",
+        "title": "New Headway 01",
         "year": 2023,
         "genre": "Adventure",
         "duration": "1h 45m",
         "imageName": "movie_img_1",
         "posterName": "movie_poster_1",
         "isPremium": false,
-        "image": "godi_movie",
+        "image": "newheadway_screenshot",
         "streamingUrl": "https://stream.mux.com/EIzGWx97cP01fy48SLTdoRGLhhSGzFjZKksGBth79Fsw.m3u8"
       },
       {
-        "title": "Christ in You",
+        "title": "For Young Lee",
         "year": 2024,
         "genre": "Thriller",
         "duration": "2h 5m",
         "imageName": "movie_img_2",
         "posterName": "movie_poster_2",
         "isPremium": true,
-        "image": "christ_movie",
+        "image": "foryounglearners",
         "streamingUrl": "https://stream.mux.com/EIzGWx97cP01fy48SLTdoRGLhhSGzFjZKksGBth79Fsw.m3u8"
       },
       {
-        "title": "Black Ashes",
+        "title": "Short Film Soulfull Drama Seriale",
         "year": 2025,
         "genre": "Drama",
         "duration": "45m",
         "imageName": "series_img_1",
         "posterName": "series_poster_1",
         "isPremium": false,
-        "image": "ashes_movie",
+        "image": "shortfilmfunny",
         "streamingUrl": "https://stream.mux.com/EIzGWx97cP01fy48SLTdoRGLhhSGzFjZKksGBth79Fsw.m3u8"
       }
     ]

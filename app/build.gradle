@@ -2,6 +2,9 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.hilt)
+    id "kotlin-kapt"
+
 }
 
 android {
@@ -75,14 +78,6 @@ dependencies {
     implementation libs.converter.gson
 
     implementation libs.logging.interceptor
-//    implementation libs.retrofit
-//    implementation libs.converter.gson
-//    implementation libs.okhttp
-//    implementation libs.logging.interceptor
-
-    // Coroutines and activity
-//    implementation libs.kotlinx.coroutines.android
-//    implementation libs.androidx.activity.ktx
 
     // Material / ConstraintLayout
     implementation libs.material
@@ -92,6 +87,12 @@ dependencies {
     implementation libs.androidx.media3.exoplayer.dash
     implementation libs.androidx.media3.ui
 
+    //hilt
+    implementation libs.androidx.hilt.navigation.compose
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.compiler)
+    implementation(libs.kotlinx.metadata.jvm)
+//    ksp(libs.hilt.compiler)
 //    implementation libs.androidx.constraintlayout
 
     // Glide

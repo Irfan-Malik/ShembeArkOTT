@@ -1,7 +1,30 @@
-[
-  { "name": "Shembe TV", "number": 1, "category": "Music" },
-  { "name": "Shembe News", "number": 2, "category": "News" },
-  { "name": "Shembe Sports", "number": 3, "category": "Sports" },
-  { "name": "Shembe Kids", "number": 4, "category": "Kids" }
-]
+{
+  "section": "Featured Channels",
+  "channels": [
+    {
+      "name": "CNN International",
+      "number": 1,
+      "category": "Music",
+      "livestreamUrl": "https://stream.mux.com/A5jjZZv02yO6xUSP4e01RfvQhVXAZQ3GJHZrRuzNGZauQ.m3u8"
+    },
+    {
+      "name": "HBO News",
+      "number": 2,
+      "category": "News",
+      "livestreamUrl": "https://stream.mux.com/A5jjZZv02yO6xUSP4e01RfvQhVXAZQ3GJHZrRuzNGZauQ.m3u8"
+    },
+    {
+      "name": "EsPN Sports",
+      "number": 3,
+      "category": "Sports",
+      "livestreamUrl": "https://stream.mux.com/A5jjZZv02yO6xUSP4e01RfvQhVXAZQ3GJHZrRuzNGZauQ.m3u8"
+    },
+    {
+      "name": "Disney Channels",
+      "number": 4,
+      "category": "Kids",
+      "livestreamUrl": "https://stream.mux.com/A5jjZZv02yO6xUSP4e01RfvQhVXAZQ3GJHZrRuzNGZauQ.m3u8"
+    }
+  ]
+}
 

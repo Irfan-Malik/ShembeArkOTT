@@ -1,10 +1,12 @@
 package com.main.taratv
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.compose.BackHandler
+import androidx.activity.viewModels
 import androidx.compose.animation.core.EaseInOutCubic
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
@@ -45,10 +47,15 @@ import com.main.taratv.screens.*
 import com.main.taratv.components.NavigationDrawer
 import com.main.taratv.components.TopHeader
 import com.main.taratv.components.TopNavigation
+import com.tara.tv.presentation.home.HomeViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    val homeViewModel: HomeViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.e("MainActivity", "onCreate called = " + homeViewModel.channels.value)
         enableEdgeToEdge()
         setContent {
             TaraTVTheme {
@@ -60,7 +67,10 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun TaraTvApp() {
-    var showSplash by remember { mutableStateOf(true) }
+    var showSignIn by remember { mutableStateOf(true) }
+    var showCreateAccount by remember { mutableStateOf(false) }
+    var showForgotPassword by remember { mutableStateOf(false) }
+    var showSplash by remember { mutableStateOf(false) }
     var selectedTab by remember { mutableStateOf(0) }
     var isDrawerOpen by remember { mutableStateOf(false) }
     var showDetailScreen by remember { mutableStateOf(false) }
@@ -76,7 +86,32 @@ fun TaraTvApp() {
         }
     }
 
-    if (showSplash) {
+    // Screen navigation: Sign-in / Create Account / Forgot Password
+    if (showSignIn) {
+        SignInScreen(
+            onSignInComplete = { showSignIn = false },
+            onSignUpClick = {
+                showSignIn = false
+                showCreateAccount = true
+            },
+            onForgotClick = {
+                showSignIn = false
+                showForgotPassword = true
+            }
+        )
+    } else if (showCreateAccount) {
+        CreateAccountScreen(onCreateAccount = {
+            // After creating account, return to sign-in (or you can route to verification)
+            showCreateAccount = false
+            showSignIn = true
+        })
+    } else if (showForgotPassword) {
+        ForgotPasswordScreen(onSend = {
+            // After sending reset instructions, return to sign-in
+            showForgotPassword = false
+            showSignIn = true
+        })
+    } else if (showSplash) {
         SplashScreenSimple(onSplashComplete = { showSplash = false })
     } else if (currentVideoUrl != null) {
         VideoPlayerScreen(
