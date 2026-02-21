@@ -216,11 +216,13 @@ fun VideoPlayer(url: String, reloadKey: Long = 0L) {
 
     Box(modifier = Modifier.fillMaxSize()) {
         AndroidView(
-            factory = {
-                PlayerView(it).apply {
-                    player = exoPlayer
+            factory = { ctx ->
+                PlayerView(ctx).apply {
                     useController = false
                 }
+            },
+            update = { playerView ->
+                playerView.player = exoPlayer
             },
             modifier = Modifier.fillMaxSize()
         )
